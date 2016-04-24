@@ -34,7 +34,8 @@ func ShowPerson(env *Env, res http.ResponseWriter, req *http.Request) error {
 	log.Printf("requested person %v", id)
 
 	var person db.Person
-	if err = env.DbMap.SelectOne(&person, "select * from people where id = ?", id); err != nil {
+	err = env.DbMap.SelectOne(&person, "select * from people where id = ?", id)
+	if err != nil {
 		return err
 	}
 
@@ -112,15 +113,38 @@ func UpdatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 	return httpWriteJSON(wr, http.StatusCreated, p)
 }
 
+// DeletePerson removes a person from the database.
+func DeletePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
+	id, err := strconv.Atoi(mux.Vars(req)["id"])
+	if err != nil {
+		return StatusError{Code: http.StatusBadRequest, Err: err}
+	}
+
+	var p db.Person
+	if err = env.DbMap.SelectOne(&p, "select * from people where id = ?", id); err != nil {
+		return err
+	}
+
+	log.Printf("loaded %v from db", p)
+
+	_, err = env.DbMap.Delete(&p)
+	if err != nil {
+		return err
+	}
+
+	return httpWriteJSON(wr, http.StatusOK, p)
+}
+
 // ListenAndServe starts a new ghenga API server with the given environment.
 func ListenAndServe(env *Env) (err error) {
 	r := mux.NewRouter()
 
 	// API routes
 	r.Handle("/api/person", Handler{H: ListPeople, Env: env}).Methods("GET")
+	r.Handle("/api/person", Handler{H: CreatePerson, Env: env}).Methods("POST")
 	r.Handle("/api/person/{id}", Handler{H: ShowPerson, Env: env}).Methods("GET")
 	r.Handle("/api/person/{id}", Handler{H: UpdatePerson, Env: env}).Methods("PUT")
-	r.Handle("/api/person", Handler{H: CreatePerson, Env: env}).Methods("POST")
+	r.Handle("/api/person/{id}", Handler{H: DeletePerson, Env: env}).Methods("DELETE")
 
 	// server static files
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(env.Public)))
