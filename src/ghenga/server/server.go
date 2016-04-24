@@ -42,7 +42,7 @@ func ShowPerson(env *Env, res http.ResponseWriter, req *http.Request) error {
 }
 
 // CreatePerson inserts a new person into the database. The request body must be valid JSON.
-func CreatePerson(env *Env, res http.ResponseWriter, req *http.Request) (err error) {
+func CreatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
 	defer cleanupErr(&err, req.Body.Close)
 
 	var p db.Person
@@ -63,7 +63,7 @@ func CreatePerson(env *Env, res http.ResponseWriter, req *http.Request) (err err
 		return err
 	}
 
-	return StatusError{Code: http.StatusCreated}
+	return httpWriteJSON(wr, http.StatusCreated, p)
 }
 
 // ListenAndServe starts a new ghenga API server with the given environment.
