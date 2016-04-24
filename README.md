@@ -35,6 +35,7 @@ vagrant ssh
 Then run the following commands to build and start the ghenga server:
 
 ```shell
+(cd ghenga/ghenga-ui && bower update)
 cd ghenga
 gb build
 bin/ghenga serve --public ghenga-ui/app
