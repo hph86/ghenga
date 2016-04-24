@@ -99,18 +99,18 @@ func (p *Person) Validate() error {
 	return nil
 }
 
-// Update changes the fields present in other.
-func (p *Person) Update(other PersonJSON) error {
-	if other.Name != nil {
-		p.Name = *other.Name
+// Update changes the fields present in otherPerson.
+func (p *Person) Update(otherPerson PersonJSON) error {
+	if otherPerson.Name != nil {
+		p.Name = *otherPerson.Name
 	}
 
-	if other.EmailAddress != nil {
-		p.EmailAddress = *other.EmailAddress
+	if otherPerson.EmailAddress != nil {
+		p.EmailAddress = *otherPerson.EmailAddress
 	}
 
-	if other.PhoneNumbers != nil {
-		for _, pn := range *other.PhoneNumbers {
+	if otherPerson.PhoneNumbers != nil {
+		for _, pn := range *otherPerson.PhoneNumbers {
 			switch pn.Type {
 			case "work":
 				p.PhoneWork = pn.Number
@@ -124,8 +124,8 @@ func (p *Person) Update(other PersonJSON) error {
 		}
 	}
 
-	if other.Comment != nil {
-		p.Comment = *other.Comment
+	if otherPerson.Comment != nil {
+		p.Comment = *otherPerson.Comment
 	}
 
 	return nil

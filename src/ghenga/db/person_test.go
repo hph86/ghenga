@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"io/ioutil"
+	"math/rand"
 	"path/filepath"
 	"testing"
 	"time"
@@ -64,7 +65,7 @@ func TestPersonMarshal(t *testing.T) {
 	for i, test := range testPersons {
 		buf := marshal(t, test.p)
 
-		golden := filepath.Join("test-fixtures", test.name+".golden")
+		golden := filepath.Join("test-fixtures", "TestPersonMarshal_"+test.name+".golden")
 		if *update {
 			err := ioutil.WriteFile(golden, buf, 0644)
 			if err != nil {
@@ -113,4 +114,23 @@ func TestPersonValidate(t *testing.T) {
 			t.Errorf("test %v (%v) failed: testPerson should be invalid but is valid", test.name, i)
 		}
 	}
+}
+
+func fakePerson(t *testing.T) *Person {
+	p, err := NewFakePerson("de")
+	if err != nil {
+		t.Fatalf("NewFakePerson(): %v", err)
+	}
+	p.ID = rand.Int63()
+	return p
+}
+
+func TestPersonUpdate(t *testing.T) {
+	p1 := fakePerson(t)
+	p2 := fakePerson(t)
+
+	p1.Update(PersonJSON{Name: &p2.Name})
+
+	// create another fake person
+
 }
