@@ -26,9 +26,9 @@ func (opts *cmdFakedata) Execute(args []string) (err error) {
 	}
 	defer CleanupErr(&err, cleanup)
 
-	log.Printf("create %v people...", opts.People)
+	log.Printf("inserting fake data into the db...")
 
-	err = db.CreateFakePeople(dbm, opts.People)
+	err = db.TestFillDB(dbm, opts.People)
 	if err != nil {
 		panic(err)
 	}
