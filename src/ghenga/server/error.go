@@ -6,7 +6,7 @@ type Error interface {
 	Status() int
 }
 
-// statusError bundles an HTTP status code with an error.
+// StatusError bundles an HTTP status code with an error.
 type StatusError struct {
 	Err  error
 	Code int
