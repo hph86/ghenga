@@ -18,5 +18,8 @@ func (err StatusError) Status() int {
 }
 
 func (err StatusError) Error() string {
+	if err.Err == nil {
+		return ""
+	}
 	return err.Err.Error()
 }
