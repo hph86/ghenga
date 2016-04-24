@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -21,17 +22,18 @@ type Person struct {
 	CreatedAt time.Time
 }
 
-// PersonJSON is the JSON representation of a Person as returned by the API.
+// PersonJSON is the JSON representation of a Person as returned or consumed by
+// the API.
 type PersonJSON struct {
-	ID           int64             `json:"id"`
-	Name         string            `json:"name"`
-	EmailAddress string            `json:"email_address"`
-	PhoneNumbers []PhoneNumberJSON `json:"phone_numbers"`
+	ID           *int64             `json:"id,omitempty"`
+	Name         *string            `json:"name,omitempty"`
+	EmailAddress *string            `json:"email_address,omitempty"`
+	PhoneNumbers *[]PhoneNumberJSON `json:"phone_numbers,omitempty"`
 
-	Comment string `json:"comment"`
+	Comment *string `json:"comment,omitempty"`
 
-	ChangedAt string `json:"changed_at"`
-	CreatedAt string `json:"created_at"`
+	ChangedAt string `json:"changed_at,omitempty"`
+	CreatedAt string `json:"created_at,omitempty"`
 }
 
 // PhoneNumberJSON is the JSON representation of a phone number.
@@ -57,11 +59,11 @@ const timeLayout = "2006-01-02T15:04:05-07:00"
 // MarshalJSON returns the JSON representation of p.
 func (p *Person) MarshalJSON() ([]byte, error) {
 	jp := PersonJSON{
-		ID:           p.ID,
-		Name:         p.Name,
-		EmailAddress: p.EmailAddress,
+		ID:           &p.ID,
+		Name:         &p.Name,
+		EmailAddress: &p.EmailAddress,
 
-		Comment:   p.Comment,
+		Comment:   &p.Comment,
 		ChangedAt: p.ChangedAt.Format(timeLayout),
 		CreatedAt: p.CreatedAt.Format(timeLayout),
 	}
@@ -81,7 +83,7 @@ func (p *Person) MarshalJSON() ([]byte, error) {
 		})
 	}
 
-	jp.PhoneNumbers = numbers
+	jp.PhoneNumbers = &numbers
 
 	return json.Marshal(jp)
 }
@@ -93,4 +95,40 @@ func (p *Person) Validate() error {
 	}
 
 	return nil
+}
+
+// Update changes the fields present in other.
+func (p *Person) Update(other PersonJSON) error {
+	if other.Name != nil {
+		p.Name = *other.Name
+	}
+
+	if other.EmailAddress != nil {
+		p.EmailAddress = *other.EmailAddress
+	}
+
+	if other.PhoneNumbers != nil {
+		for _, pn := range *other.PhoneNumbers {
+			switch pn.Type {
+			case "work":
+				p.PhoneWork = pn.Number
+			case "mobile":
+				p.PhoneMobile = pn.Number
+			case "other":
+				p.PhoneOther = pn.Number
+			default:
+				return fmt.Errorf("unknown phone number type %v", pn.Type)
+			}
+		}
+	}
+
+	if other.Comment != nil {
+		p.Comment = *other.Comment
+	}
+
+	return nil
+}
+
+func (p Person) String() string {
+	return fmt.Sprintf("<Person %q (%v)>", p.Name, p.ID)
 }

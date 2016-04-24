@@ -51,6 +51,7 @@ func CreatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 		return err
 	}
 
+	// overwrite fields we'd like to be set
 	p.CreatedAt = time.Now()
 	p.ChangedAt = time.Now()
 
@@ -59,6 +60,51 @@ func CreatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 	}
 
 	err = env.DbMap.Insert(&p)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("created person %v", p)
+
+	return httpWriteJSON(wr, http.StatusCreated, p)
+}
+
+// UpdatePerson changes an existing person record. The request body must be valid JSON.
+func UpdatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
+	defer cleanupErr(&err, req.Body.Close)
+
+	id, err := strconv.Atoi(mux.Vars(req)["id"])
+	if err != nil {
+		return StatusError{Code: http.StatusBadRequest, Err: err}
+	}
+
+	var p db.Person
+	if err = env.DbMap.SelectOne(&p, "select * from people where id = ?", id); err != nil {
+		return err
+	}
+
+	log.Printf("loaded %v from db", p)
+
+	var newPerson db.PersonJSON
+	dec := json.NewDecoder(req.Body)
+	if err = dec.Decode(&newPerson); err != nil {
+		return err
+	}
+
+	// only update a few fields from p
+	if err = p.Update(newPerson); err != nil {
+		return StatusError{Code: http.StatusBadRequest, Err: err}
+	}
+
+	p.ChangedAt = time.Now()
+
+	log.Printf("modified %v", p)
+	if err = p.Validate(); err != nil {
+		return StatusError{Code: http.StatusBadRequest, Err: err}
+	}
+
+	log.Printf("save %v", p)
+	_, err = env.DbMap.Update(&p)
 	if err != nil {
 		return err
 	}
@@ -73,6 +119,7 @@ func ListenAndServe(env *Env) (err error) {
 	// API routes
 	r.Handle("/api/person", Handler{H: ListPeople, Env: env}).Methods("GET")
 	r.Handle("/api/person/{id}", Handler{H: ShowPerson, Env: env}).Methods("GET")
+	r.Handle("/api/person/{id}", Handler{H: UpdatePerson, Env: env}).Methods("PUT")
 	r.Handle("/api/person", Handler{H: CreatePerson, Env: env}).Methods("POST")
 
 	// server static files
