@@ -1,6 +1,16 @@
 language: go
 sudo: false
 
+notifications:
+  webhooks:
+    urls:
+      # this URL can be found at gitter.im by clicking
+      # Settings -> Integrations -> Travis
+      - https://webhooks.gitter.im/e/a2c9aec0adb49d0111e4
+    on_success: change
+    on_failure: always
+    on_start: never
+
 go:
   - 1.5.4
   - 1.6.1
