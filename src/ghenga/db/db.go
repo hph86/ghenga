@@ -1,3 +1,4 @@
+// Package db contains the models for the ghenga database.
 package db
 
 import (
