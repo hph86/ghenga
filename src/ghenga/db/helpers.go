@@ -43,14 +43,13 @@ func InsertFakeData(dbm *modl.DbMap, people int) error {
 }
 
 // TestDBFilled returns an in-memory database filled with fake data.
-func TestDBFilled(t *testing.T, people int) *modl.DbMap {
+func TestDBFilled(t *testing.T, people int) (*modl.DbMap, func()) {
 	db, cleanup := TestDB(t)
-	defer cleanup()
 
 	err := InsertFakeData(db, people)
 	if err != nil {
 		t.Fatalf("TestFillDB(): %v", err)
 	}
 
-	return db
+	return db, cleanup
 }
