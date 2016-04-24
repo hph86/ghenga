@@ -81,3 +81,36 @@ func TestPersonMarshal(t *testing.T) {
 		}
 	}
 }
+
+var testPersonValidate = []struct {
+	name  string
+	valid bool
+	p     Person
+}{
+	{
+		name:  "invalid1",
+		valid: false,
+		p: Person{
+			Name: "",
+		},
+	},
+}
+
+func TestPersonValidate(t *testing.T) {
+	for i, test := range testPersons {
+		if err := test.p.Validate(); err != nil {
+			t.Errorf("test %v (%v) failed: testPerson is invalid: %v", test.name, i, err)
+		}
+	}
+
+	for i, test := range testPersonValidate {
+		err := test.p.Validate()
+		if test.valid && err != nil {
+			t.Errorf("test %v (%v) failed: testPerson should be valid but is invalid: %v", test.name, i, err)
+		}
+
+		if !test.valid && err == nil {
+			t.Errorf("test %v (%v) failed: testPerson should be invalid but is valid", test.name, i)
+		}
+	}
+}
