@@ -11,7 +11,7 @@ roughly the following entities:
 
 # Endpoints
 
-The API is reachable at the path `/api`
+The API is reachable at the path `/api`.
 
 ## Authentication
 
@@ -23,7 +23,7 @@ Log into ghenga with the given user name and password in the HTTP basic auth.
 Returns an authentication token which is valid for the given period of time.
 The body of response looks as follows:
 
-```
+```json
 {
   "token": "8890bb0467cfe0bde7ec8554b6b01e4174ee6217ed540fc811ef4bfac80c082e",
   "valid_for": 7200,
@@ -45,7 +45,16 @@ Returns a list of all persons.
 ### POST /person
 
 Create a new person. In the body, a JSON document describing the new person
-must be submitted.
+must be submitted. The server responds with a status code of 201 (Created) and
+a JSON document in the body of the response containing the person's ID:
+
+```json
+{
+  "id": 23
+}
+```
+
+In case of an error, an error document is returned.
 
 ### GET /person/:id:
 
@@ -92,7 +101,7 @@ an optional JSON document in the body.
 For example when ghenga is unable to reach the database server, the HTTP status
 code 500 (internal server error) and the following document is returned:
 
-```
+```json
 {
   "message": "Unable to connect to database",
   "code": "DATABASE_DOWN"
