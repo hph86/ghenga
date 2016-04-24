@@ -15,6 +15,7 @@ type Env struct {
 	DbMap      *modl.DbMap
 	ListenAddr string
 	Public     string
+	Debug      bool
 }
 
 // Handler is an http.Handler with an explicit error return value, bundled together with an environment.
@@ -51,6 +52,14 @@ func (h Handler) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 				log.Printf("error writing error document to client: %v", err)
 			}
 		default:
+			log.Printf("unhandled error: %v", err)
+			if h.Env.Debug {
+				log.Printf("sending verbose message")
+				// return verbose error message
+				http.Error(wr, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
 			// return a generic internal server error message with status 500
 			http.Error(wr, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}

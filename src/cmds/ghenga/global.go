@@ -9,13 +9,16 @@ import (
 )
 
 type globalOptions struct {
-	Environment string `short:"e" long:"environment" default:"production" env:"GHENGA_ENV" description:"Environment to use"`
+	Environment string `short:"e" long:"environment" default:"production" env:"GHENGA_ENV"   description:"Environment to use"`
+	Debug       bool   `short:"d" long:"debug"                            env:"GHENGA_DEBUG" description:"Enable debug messages for development"`
 }
 
 func (opts *globalOptions) DatabaseFilename() string {
 	switch opts.Environment {
 	case "test":
 		return "db/test.db"
+	case "developmont":
+		return "db/devel.db"
 	case "production":
 		return "db/production.db"
 	}

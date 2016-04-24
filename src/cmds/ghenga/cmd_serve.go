@@ -35,6 +35,7 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 		ListenAddr: fmt.Sprintf("%s:%d", opts.Addr, opts.Port),
 		DbMap:      dbmap,
 		Public:     opts.Public,
+		Debug:      globalOpts.Debug,
 	}
 
 	err = server.ListenAndServe(env)
