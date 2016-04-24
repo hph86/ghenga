@@ -46,15 +46,7 @@ Returns a list of all persons.
 
 Create a new person. In the body, a JSON document describing the new person
 must be submitted. The server responds with a status code of 201 (Created) and
-a JSON document in the body of the response containing the person's ID:
-
-```json
-{
-  "id": 23
-}
-```
-
-In case of an error, an error document is returned.
+a JSON document with all the data for the new person record, including the ID.
 
 ### GET /person/:id:
 
