@@ -2,6 +2,7 @@ package db
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -83,4 +84,13 @@ func (p *Person) MarshalJSON() ([]byte, error) {
 	jp.PhoneNumbers = numbers
 
 	return json.Marshal(jp)
+}
+
+// Validate checks if p is valid and returns an error if not.
+func (p *Person) Validate() error {
+	if p.Name == "" {
+		return errors.New("name is empty")
+	}
+
+	return nil
 }
