@@ -47,6 +47,6 @@ func TestTestDBFilled(t *testing.T) {
 
 	people := countPeople(t, db)
 	if people < 234 {
-		t.Fatalf("expcted at least %v people in the db, got %v", 234, people)
+		t.Fatalf("expected at least %v people in the db, got %v", 234, people)
 	}
 }
