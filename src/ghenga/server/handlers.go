@@ -26,7 +26,7 @@ type Handler struct {
 // httpWriteJSON encodes the given structures as JSON and writes them to the
 // ResponseWriter.
 func httpWriteJSON(wr http.ResponseWriter, status int, data interface{}) error {
-	wr.Header().Set("Content-Type", "application/json")
+	wr.Header().Set("Content-Type", "application/json; charset=utf-8")
 	wr.WriteHeader(status)
 
 	enc := json.NewEncoder(wr)
