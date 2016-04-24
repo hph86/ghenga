@@ -70,7 +70,7 @@ func (p Person) MarshalJSON() ([]byte, error) {
 		CreatedAt: p.CreatedAt.Format(timeLayout),
 	}
 
-	var numbers []PhoneNumberJSON
+	numbers := []PhoneNumberJSON{}
 
 	for _, num := range []struct{ t, n string }{
 		{"work", p.PhoneWork}, {"mobile", p.PhoneMobile}, {"other", p.PhoneOther},
