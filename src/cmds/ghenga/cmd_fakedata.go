@@ -28,7 +28,7 @@ func (opts *cmdFakedata) Execute(args []string) (err error) {
 
 	log.Printf("inserting fake data into the db...")
 
-	err = db.TestFillDB(dbm, opts.People)
+	err = db.InsertFakeData(dbm, opts.People)
 	if err != nil {
 		panic(err)
 	}
