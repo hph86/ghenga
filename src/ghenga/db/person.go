@@ -54,10 +54,12 @@ func NewPerson(name string) *Person {
 	}
 }
 
+// timeLayout is the format used for the timestamps in the JSON representation
+// of a Person.
 const timeLayout = "2006-01-02T15:04:05-07:00"
 
 // MarshalJSON returns the JSON representation of p.
-func (p *Person) MarshalJSON() ([]byte, error) {
+func (p Person) MarshalJSON() ([]byte, error) {
 	jp := PersonJSON{
 		ID:           &p.ID,
 		Name:         &p.Name,
