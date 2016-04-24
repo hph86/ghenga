@@ -1,6 +1,8 @@
+[![Build Status](https://travis-ci.org/ghenga/ghenga.svg?branch=master)](https://travis-ci.org/ghenga/ghenga)
+[![Join the chat at https://gitter.im/ghenga/ghenga](https://badges.gitter.im/ghenga/ghenga.svg)](https://gitter.im/ghenga/ghenga?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 # ghenga
 
-[![Join the chat at https://gitter.im/ghenga/ghenga](https://badges.gitter.im/ghenga/ghenga.svg)](https://gitter.im/ghenga/ghenga?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 The ghenga micro CRM
 
 ## Getting Started
