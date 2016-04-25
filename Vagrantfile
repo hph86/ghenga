@@ -21,7 +21,7 @@ Vagrant.configure(2) do |config|
   end
 
 
-  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 8080, host: ENV["GHENGA_PORT"].to_i || 8080
   config.vm.synced_folder ".", "/home/vagrant/ghenga"
 
   config.vm.provision "shell", inline: <<-SHELL
