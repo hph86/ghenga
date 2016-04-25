@@ -127,3 +127,21 @@ The following fields not automatically managed by ghenga are required for the
 object to be valid:
 
  * `name`
+
+User
+====
+
+A user is allowed to use interact with the server. Users can be queried,
+created and modified as any other object. The document describing a user is
+as follows:
+
+```json
+{
+  "id": 666,
+  "username": "will",
+  "name": "Will Wheaton",
+  "version": 1,
+  "changed_at": "2016-04-24T10:30:07+00:00",
+  "created_at": "2016-04-24T10:30:07+00:00"
+}
+```
