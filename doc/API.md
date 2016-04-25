@@ -1,13 +1,13 @@
 # Introduction
 
-This document provides a high-level overview of the REST API. Ghenga manages
-roughly the following entities:
+This document provides a high-level overview of the REST API. The objects
+ghenga manages are described in the file [Models.md](Models.md).
 
- * People
- * Companies
- * Activities
- * Events
- * Users
+All objects have a `version` attribute, which is automatically incremented with
+each new version of the same object. On update (via `PUT`), the latest version
+known to the client must be submitted. If the version in the database has
+increased in the meantime, the update fails and the user can be informed that
+someone else has modified the same object.
 
 # Endpoints
 

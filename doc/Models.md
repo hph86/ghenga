@@ -20,6 +20,12 @@ includes the following fields:
  * `id`
  * `created_at`
  * `changed_at`
+ * `version`
+
+The version field is used to detect concurrent updates of the same object. It
+is automatically incremented by the server and must be submitted with an
+update. If the version in the database was incremented, the update fails
+gracefully.
 
 Person
 ======
@@ -30,6 +36,7 @@ follows:
 ```json
 {
   "id": 100,
+  "version": 5,
   "name": "Nicolai Person",
   "title": "CEO",
   "department": "Management",
@@ -85,6 +92,7 @@ describing an Account is as follows:
 ```json
 {
   "id": 123,
+  "version": 2,
   "name": "Beispiel GmbH",
   "website": "https://www.example.com",
   "phone_numbers": [
