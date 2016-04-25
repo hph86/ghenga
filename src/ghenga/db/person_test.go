@@ -38,6 +38,7 @@ var testPersons = []struct {
 			Comment:      "fake profile",
 			ChangedAt:    parseTime("2016-04-24T10:30:07+02:00"),
 			CreatedAt:    parseTime("2016-04-24T10:30:07+02:00"),
+			Version:      23,
 		},
 	},
 	{
@@ -48,6 +49,7 @@ var testPersons = []struct {
 			EmailAddress: "bela_freigang@herweg.com",
 			ChangedAt:    parseTime("2016-04-24T10:30:07+00:00"),
 			CreatedAt:    parseTime("2016-04-24T10:30:07+00:00"),
+			Version:      1,
 		},
 	},
 }

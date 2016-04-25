@@ -9,17 +9,29 @@ import (
 
 // Person is a person in the database.
 type Person struct {
-	ID           int64
 	Name         string
+	Title        string
+	Department   string
 	EmailAddress string
 	PhoneWork    string
 	PhoneMobile  string
+	PhoneFax     string
 	PhoneOther   string
+
+	// Address
+	Street     string
+	PostalCode string
+	State      string
+	City       string
+	Country    string
 
 	Comment string
 
+	// the following attributes are managed by the server
+	ID        int64
 	ChangedAt time.Time
 	CreatedAt time.Time
+	Version   int64
 }
 
 // PersonJSON is the JSON representation of a Person as returned or consumed by
@@ -27,13 +39,19 @@ type Person struct {
 type PersonJSON struct {
 	ID           *int64             `json:"id,omitempty"`
 	Name         *string            `json:"name,omitempty"`
+	Title        *string            `json:"title,omitempty"`
+	Department   *string            `json:"department,omitempty"`
 	EmailAddress *string            `json:"email_address,omitempty"`
 	PhoneNumbers *[]PhoneNumberJSON `json:"phone_numbers,omitempty"`
+
+	Address *AddressJSON `json:"address,omitempty"`
 
 	Comment *string `json:"comment,omitempty"`
 
 	ChangedAt string `json:"changed_at,omitempty"`
 	CreatedAt string `json:"created_at,omitempty"`
+
+	Version int64 `json:"version"`
 }
 
 // PhoneNumberJSON is the JSON representation of a phone number.
@@ -42,8 +60,16 @@ type PhoneNumberJSON struct {
 	Number string `json:"number"`
 }
 
-// NewPerson returns a new person record with the timestamps set to the current
-// time.
+// AddressJSON is the JSON representation of an address.
+type AddressJSON struct {
+	Street     string `json:"street,omitempty"`
+	PostalCode string `json:"postal_code,omitempty"`
+	State      string `json:"state,omitempty"`
+	City       string `json:"city,omitempty"`
+	Country    string `json:"country,omitempty"`
+}
+
+// NewPerson returns a new person record.
 func NewPerson(name string) *Person {
 	ts := time.Now()
 
@@ -51,6 +77,7 @@ func NewPerson(name string) *Person {
 		Name:      name,
 		CreatedAt: ts,
 		ChangedAt: ts,
+		Version:   1,
 	}
 }
 
@@ -61,17 +88,27 @@ const timeLayout = "2006-01-02T15:04:05-07:00"
 // MarshalJSON returns the JSON representation of p.
 func (p Person) MarshalJSON() ([]byte, error) {
 	jp := PersonJSON{
-		ID:           &p.ID,
-		Name:         &p.Name,
-		EmailAddress: &p.EmailAddress,
+		ID:   &p.ID,
+		Name: &p.Name,
 
-		Comment:   &p.Comment,
 		ChangedAt: p.ChangedAt.Format(timeLayout),
 		CreatedAt: p.CreatedAt.Format(timeLayout),
+		Version:   p.Version,
+	}
+
+	if p.Title != "" {
+		jp.Title = &p.Title
+	}
+
+	if p.Department != "" {
+		jp.Department = &p.Department
+	}
+
+	if p.EmailAddress != "" {
+		jp.EmailAddress = &p.EmailAddress
 	}
 
 	numbers := []PhoneNumberJSON{}
-
 	for _, num := range []struct{ t, n string }{
 		{"work", p.PhoneWork}, {"mobile", p.PhoneMobile}, {"other", p.PhoneOther},
 	} {
@@ -84,8 +121,21 @@ func (p Person) MarshalJSON() ([]byte, error) {
 			Number: num.n,
 		})
 	}
-
 	jp.PhoneNumbers = &numbers
+
+	if p.Street != "" || p.PostalCode != "" || p.State != "" || p.City != "" || p.Country != "" {
+		jp.Address = &AddressJSON{
+			Street:     p.Street,
+			PostalCode: p.PostalCode,
+			State:      p.State,
+			City:       p.City,
+			Country:    p.Country,
+		}
+	}
+
+	if p.Comment != "" {
+		jp.Comment = &p.Comment
+	}
 
 	return json.Marshal(jp)
 }

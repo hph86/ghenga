@@ -1,6 +1,7 @@
 package db
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/jmoiron/modl"
@@ -15,12 +16,40 @@ func NewFakePerson(lang string) (*Person, error) {
 	}
 
 	p := NewPerson(f.FirstName() + " " + f.LastName())
-
+	if rand.Float32() <= 0.2 {
+		p.Title = "CEO"
+	}
+	p.Department = "Testers"
 	p.EmailAddress = f.Email()
-	p.PhoneMobile = f.CellPhoneNumber()
-	p.PhoneWork = f.PhoneNumber()
+
+	if rand.Float32() < 0.5 {
+		p.PhoneMobile = f.CellPhoneNumber()
+	}
+
+	if rand.Float32() <= 0.9 {
+		p.PhoneWork = f.PhoneNumber()
+	}
+
+	if rand.Float32() <= 0.1 {
+		p.PhoneFax = f.PhoneNumber()
+	}
+
+	if rand.Float32() <= 0.3 {
+		p.PhoneOther = f.PhoneNumber()
+	}
 
 	p.Comment = "fake profile"
+	p.ID = rand.Int63n(20)
+
+	if rand.Float32() <= 0.6 {
+		p.Street = f.StreetAddress()
+		p.PostalCode = f.PostCode()
+		if rand.Float32() < 0.4 {
+			p.State = "CA"
+		}
+		p.City = f.City()
+		p.Country = f.Country()
+	}
 
 	return p, nil
 }
