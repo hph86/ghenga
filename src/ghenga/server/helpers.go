@@ -2,7 +2,10 @@ package server
 
 import (
 	"ghenga/db"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
 // cleanupErr runs fn and sets err to the returned error if err is nil.
@@ -25,4 +28,19 @@ func TestEnv(t *testing.T) (env *Env, cleanup func()) {
 	}
 
 	return env, func() { dbcleanup() }
+}
+
+// TestServer returns an *httptest.Server running the ghenga API on an
+// in-memory DB filled with fake data.
+func TestServer(t *testing.T) (srv *httptest.Server, cleanup func()) {
+	env, envcleanup := TestEnv(t)
+
+	r := mux.NewRouter()
+	PeopleHandler(env, r)
+	srv = httptest.NewServer(r)
+
+	return srv, func() {
+		srv.Close()
+		envcleanup()
+	}
 }
