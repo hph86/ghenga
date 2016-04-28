@@ -13,10 +13,8 @@ import (
 
 // Env is an environment for a handler function.
 type Env struct {
-	DbMap      *modl.DbMap
-	ListenAddr string
-	Public     string
-	Debug      bool
+	DbMap *modl.DbMap
+	Debug bool
 }
 
 // HandleFunc is a function similar to http.HandleFunc, but extended by an

@@ -37,19 +37,17 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 	log.Printf("starting server at %v:%d", opts.Addr, opts.Port)
 
 	env := &server.Env{
-		ListenAddr: fmt.Sprintf("%s:%d", opts.Addr, opts.Port),
-		DbMap:      dbmap,
-		Public:     opts.Public,
-		Debug:      globalOpts.Debug,
+		DbMap: dbmap,
+		Debug: globalOpts.Debug,
 	}
 
 	router := server.PeopleHandler(env, mux.NewRouter())
 
 	// server static files on the root path
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir(env.Public)))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir(opts.Public)))
 
 	// activate logging to stdout
 	http.Handle("/", handlers.CombinedLoggingHandler(os.Stdout, router))
 
-	return http.ListenAndServe(env.ListenAddr, nil)
+	return http.ListenAndServe(fmt.Sprintf("%s:%d", opts.Addr, opts.Port), nil)
 }
