@@ -134,7 +134,7 @@ func DeletePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 }
 
 // PeopleHandler adds routes to the for ghenga API in the given enviroment to r.
-func PeopleHandler(env *Env, r *mux.Router) *mux.Router {
+func PeopleHandler(env *Env, r *mux.Router) {
 	if r == nil {
 		panic("no router given")
 	}
@@ -144,6 +144,4 @@ func PeopleHandler(env *Env, r *mux.Router) *mux.Router {
 	r.Handle("/api/person/{id}", Handler{H: ShowPerson, Env: env}).Methods("GET")
 	r.Handle("/api/person/{id}", Handler{H: UpdatePerson, Env: env}).Methods("PUT")
 	r.Handle("/api/person/{id}", Handler{H: DeletePerson, Env: env}).Methods("DELETE")
-
-	return r
 }

@@ -41,7 +41,8 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 		Debug: globalOpts.Debug,
 	}
 
-	router := server.PeopleHandler(env, mux.NewRouter())
+	router := mux.NewRouter()
+	server.PeopleHandler(env, router)
 
 	// server static files on the root path
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(opts.Public)))
