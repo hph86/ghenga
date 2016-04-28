@@ -45,7 +45,7 @@ type jsonError struct {
 	Message string `json:"message,omitempty"`
 }
 
-// ServeHTTP allows the handler to be used in place of http.Handler.
+// ServeHTTP allows a Handler to be used in place of http.Handler.
 func (h Handler) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	err := RecoverHandler(h.Env, wr, req, h.H)
 	if err != nil {

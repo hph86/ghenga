@@ -5,11 +5,9 @@ import (
 	"ghenga/db"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -135,22 +133,17 @@ func DeletePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 	return httpWriteJSON(wr, http.StatusOK, p)
 }
 
-// ListenAndServe starts a new ghenga API server with the given environment.
-func ListenAndServe(env *Env) (err error) {
-	r := mux.NewRouter()
+// NewHandler adds routes to the for ghenga API in the given enviroment to r.
+func NewHandler(env *Env, r *mux.Router) *mux.Router {
+	if r == nil {
+		panic("no router given")
+	}
 
-	// API routes
 	r.Handle("/api/person", Handler{H: ListPeople, Env: env}).Methods("GET")
 	r.Handle("/api/person", Handler{H: CreatePerson, Env: env}).Methods("POST")
 	r.Handle("/api/person/{id}", Handler{H: ShowPerson, Env: env}).Methods("GET")
 	r.Handle("/api/person/{id}", Handler{H: UpdatePerson, Env: env}).Methods("PUT")
 	r.Handle("/api/person/{id}", Handler{H: DeletePerson, Env: env}).Methods("DELETE")
 
-	// server static files
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(env.Public)))
-
-	// activate logging to stdout
-	http.Handle("/", handlers.CombinedLoggingHandler(os.Stdout, r))
-
-	return http.ListenAndServe(env.ListenAddr, nil)
+	return r
 }

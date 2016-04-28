@@ -4,12 +4,17 @@ import (
 	"fmt"
 	"ghenga/server"
 	"log"
+	"net/http"
+	"os"
+
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 type cmdServe struct {
 	Port   uint   `short:"p" long:"port"   default:"8080"   description:"set the port for the HTTP server"`
 	Addr   string `short:"b" long:"bind"   default:""       description:"bind to this address"`
-	Public string `          long:"public" default:"public" description:"the directory to server static files from"`
+	Public string `          long:"public" default:"public" description:"directory for serving static files"`
 }
 
 func init() {
@@ -38,10 +43,13 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 		Debug:      globalOpts.Debug,
 	}
 
-	err = server.ListenAndServe(env)
-	if err != nil {
-		log.Fatal(err)
-	}
+	router := server.NewHandler(env, mux.NewRouter())
 
-	return nil
+	// server static files on the root path
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir(env.Public)))
+
+	// activate logging to stdout
+	http.Handle("/", handlers.CombinedLoggingHandler(os.Stdout, router))
+
+	return http.ListenAndServe(env.ListenAddr, nil)
 }
