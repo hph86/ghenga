@@ -29,7 +29,11 @@ Vagrant.configure(2) do |config|
        apt-get update
        apt-get -y dist-upgrade
 
-       apt-get install -y curl wget git vim tmux screen zsh sqlite3 npm
+       apt-get install -y \
+          -o Dpkg::Options::="--force-confdef" \
+          -o Dpkg::Options::="--force-confnew" \
+          curl wget git vim tmux screen zsh sqlite3 npm
+
        ln -sf /usr/bin/nodejs /usr/bin/node
        npm install -g bower
   SHELL
