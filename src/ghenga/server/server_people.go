@@ -133,8 +133,8 @@ func DeletePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 	return httpWriteJSON(wr, http.StatusOK, p)
 }
 
-// NewHandler adds routes to the for ghenga API in the given enviroment to r.
-func NewHandler(env *Env, r *mux.Router) *mux.Router {
+// PeopleHandler adds routes to the for ghenga API in the given enviroment to r.
+func PeopleHandler(env *Env, r *mux.Router) *mux.Router {
 	if r == nil {
 		panic("no router given")
 	}
