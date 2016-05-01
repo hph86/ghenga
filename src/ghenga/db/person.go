@@ -137,8 +137,8 @@ func (p *Person) PostInsert(db modl.SqlExecutor) error {
 	return nil
 }
 
-// LoadPhoneNumbers loads the phone numbers associated with the person.
-func (p *Person) LoadPhoneNumbers(db *modl.DbMap) error {
+// PostGet loads the phone numbers associated with the person.
+func (p *Person) PostGet(db modl.SqlExecutor) error {
 	return db.Select(&p.PhoneNumbers, "SELECT * FROM phone_numbers WHERE person_id = ?", p.ID)
 }
 

@@ -76,11 +76,6 @@ func TestPersonInsertSelect(t *testing.T) {
 			continue
 		}
 
-		if err = p.LoadPhoneNumbers(db); err != nil {
-			t.Errorf("error loading phone numbers: %v", err)
-			continue
-		}
-
 		if p.ID == 0 {
 			t.Errorf("ID of new person is zero")
 		}

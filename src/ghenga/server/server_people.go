@@ -13,19 +13,10 @@ import (
 
 // ListPeople handles listing person records.
 func ListPeople(env *Env, res http.ResponseWriter, req *http.Request) error {
-	people := []db.Person{}
+	var people []*db.Person
 	err := env.DbMap.Select(&people, "select * from people")
 	if err != nil {
 		return err
-	}
-
-	for i, p := range people {
-		err = p.LoadPhoneNumbers(env.DbMap)
-		if err != nil {
-			return err
-		}
-
-		people[i] = p
 	}
 
 	log.Printf("loaded %v person records", len(people))
@@ -43,11 +34,6 @@ func ShowPerson(env *Env, res http.ResponseWriter, req *http.Request) error {
 
 	var person db.Person
 	err = env.DbMap.SelectOne(&person, "select * from people where id = ?", id)
-	if err != nil {
-		return err
-	}
-
-	err = person.LoadPhoneNumbers(env.DbMap)
 	if err != nil {
 		return err
 	}

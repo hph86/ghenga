@@ -25,7 +25,7 @@ func insertTestEntries(t *testing.T, db *modl.DbMap) {
 }
 
 func verifyTestEntries(t *testing.T, db *modl.DbMap) {
-	var entries []Person
+	var entries []*Person
 	err := db.Select(&entries, "select * from people order by id")
 	if err != nil {
 		t.Fatalf("select: %v", err)
