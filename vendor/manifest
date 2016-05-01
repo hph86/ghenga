@@ -48,6 +48,18 @@
 			"repository": "https://github.com/mattn/go-sqlite3",
 			"revision": "467f50b0c026317ad28fc2c0a08aab6f755cfc7a",
 			"branch": "master"
+		},
+		{
+			"importpath": "github.com/rubenv/modl-migrate",
+			"repository": "https://github.com/rubenv/modl-migrate",
+			"revision": "2ff18c3f502d478b1891608c0d944d8764b2d322",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/rubenv/sql-migrate",
+			"repository": "https://github.com/rubenv/sql-migrate",
+			"revision": "969836b11ea791ff8335d8142eb96904db12d593",
+			"branch": "master"
 		}
 	]
 }
