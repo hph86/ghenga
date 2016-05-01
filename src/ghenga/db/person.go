@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/jmoiron/modl"
 )
 
 // Person is a person in the database.
@@ -147,6 +149,36 @@ func (p *Person) Update(otherPerson PersonJSON) error {
 	return nil
 }
 
+// PostInsert is run after a person is saved into the database. It is
+// used to handle phone numbers associated with a person.
+func (p *Person) PostInsert(db modl.SqlExecutor) error {
+	if len(p.PhoneNumbers) == 0 {
+		return nil
+	}
+
+	for _, num := range p.PhoneNumbers {
+		num.PersonID = p.ID
+		err := db.Insert(&num)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// LoadPhoneNumbers loads the phone numbers associated with the person.
+func (p *Person) LoadPhoneNumbers(db *modl.DbMap) error {
+	return db.Select(&p.PhoneNumbers, "SELECT * FROM phone_numbers WHERE person_id = ?", p.ID)
+}
+
 func (p Person) String() string {
-	return fmt.Sprintf("<Person %q (%v)>", p.Name, p.ID)
+	numbers := ""
+	if len(p.PhoneNumbers) > 0 {
+		for _, num := range p.PhoneNumbers {
+			numbers += fmt.Sprintf(", %v [%v]", num.Number, num.Type)
+		}
+	}
+
+	return fmt.Sprintf("<Person (%v)%s>", p.Name, numbers)
 }

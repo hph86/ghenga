@@ -22,23 +22,23 @@ func NewFakePerson(lang string) (*Person, error) {
 	p.Department = "Testers"
 	p.EmailAddress = f.Email()
 
-	// for _, d := range []struct{
-	// 	probability float32
-	// 	tpe string
-	// 	gen func() string
-	// }{
-	// 	{0.5, "mobile", f.CellPhoneNumber},
-	// 	{0.9, "work", f.PhoneNumber},
-	// 	{0.1, "fax", f.PhoneNumber},
-	// 	{0.3, "other", f.PhoneNumber},
-	// } {
-	// 	if rand.Float32() < d.probability {
-	// 		p.PhoneNumbers = append(p.PhoneNumbers, PhoneNumber{
-	// 			Type: d.tpe,
-	// 			Number: d.gen(),
-	// 		})
-	// 	}
-	// }
+	for _, d := range []struct {
+		probability float32
+		tpe         string
+		gen         func() string
+	}{
+		{0.5, "mobile", f.CellPhoneNumber},
+		{0.9, "work", f.PhoneNumber},
+		{0.1, "fax", f.PhoneNumber},
+		{0.3, "other", f.PhoneNumber},
+	} {
+		if rand.Float32() < d.probability {
+			p.PhoneNumbers = append(p.PhoneNumbers, PhoneNumber{
+				Type:   d.tpe,
+				Number: d.gen(),
+			})
+		}
+	}
 
 	p.Comment = "fake profile"
 	p.ID = rand.Int63n(20)

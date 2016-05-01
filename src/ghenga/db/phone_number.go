@@ -2,7 +2,6 @@ package db
 
 // PhoneNumber is a phone number of a specified type.
 type PhoneNumber struct {
-	ID       int64
 	Number   string
 	Type     string
 	PersonID int64

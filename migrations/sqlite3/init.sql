@@ -20,11 +20,6 @@ create table people (
 );
 
 create table phone_numbers (
-    id integer not null primary key autoincrement,
-    version int not null,
-    created_at datetime not null,
-    changed_at datetime not null,
-
     number text not null,
     type text not null,
     person_id int default null,

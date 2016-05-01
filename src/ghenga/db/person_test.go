@@ -29,7 +29,6 @@ var testPersons = []struct {
 	{
 		name: "testperson1",
 		p: Person{
-			ID:           2,
 			Name:         "Tamara Skibicki",
 			EmailAddress: "pit@ackermannsehls.org",
 			PhoneNumbers: []PhoneNumber{
@@ -46,7 +45,6 @@ var testPersons = []struct {
 	{
 		name: "testperson2",
 		p: Person{
-			ID:           23,
 			Name:         "Mario Drees",
 			EmailAddress: "bela_freigang@herweg.com",
 			ChangedAt:    parseTime("2016-04-24T10:30:07+00:00"),
@@ -54,6 +52,57 @@ var testPersons = []struct {
 			Version:      1,
 		},
 	},
+}
+
+func TestPersonInsertSelect(t *testing.T) {
+	db, cleanup := TestDB(t)
+	defer cleanup()
+
+	var ids []int64
+	for _, test := range testPersons {
+		err := db.Insert(&test.p)
+		if err != nil {
+			t.Errorf("saving %v failed: %v", test.name, err)
+			continue
+		}
+
+		ids = append(ids, test.p.ID)
+	}
+
+	for i, test := range testPersons {
+		var p Person
+		err := db.SelectOne(&p, "SELECT * FROM people WHERE id=?", ids[i])
+		if err != nil {
+			t.Errorf("loading %v failed: %v", test.p.ID, err)
+			continue
+		}
+
+		if err = p.LoadPhoneNumbers(db); err != nil {
+			t.Errorf("error loading phone numbers: %v", err)
+			continue
+		}
+
+		if p.ID == 0 {
+			t.Errorf("ID of new person is zero")
+		}
+
+		if p.Version != test.p.Version+1 {
+			t.Errorf("%v: wrong version loaded from db, want %v, got %v",
+				test.name, test.p.Version+1, p.Version)
+		}
+
+		p.ID = test.p.ID
+		p.Version = test.p.Version
+
+		buf1 := marshal(t, test.p)
+		buf2 := marshal(t, p)
+
+		if !bytes.Equal(buf1, buf2) {
+			t.Errorf("loading %v returned different data:\n  want: %s\n   got: %s",
+				test.name, buf1, buf2)
+			continue
+		}
+	}
 }
 
 func marshal(t *testing.T, item interface{}) []byte {
@@ -82,7 +131,7 @@ func TestPersonMarshal(t *testing.T) {
 			t.Errorf("test %d: unable to read golden file %v", i, golden)
 		}
 		if !bytes.Equal(buf, expected) {
-			t.Errorf("test %d (%v) marshal to JSON failed:\n  want: %s\n   got: %s", i, test.name, expected, buf)
+			t.Errorf("test %d (%v) wrong JSON returned:\n  want: %s\n   got: %s", i, test.name, expected, buf)
 		}
 	}
 }
