@@ -18,6 +18,16 @@ func ListPeople(env *Env, res http.ResponseWriter, req *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	for i, p := range people {
+		err = p.LoadPhoneNumbers(env.DbMap)
+		if err != nil {
+			return err
+		}
+
+		people[i] = p
+	}
+
 	log.Printf("loaded %v person records", len(people))
 
 	return httpWriteJSON(res, http.StatusOK, people)
@@ -33,6 +43,11 @@ func ShowPerson(env *Env, res http.ResponseWriter, req *http.Request) error {
 
 	var person db.Person
 	err = env.DbMap.SelectOne(&person, "select * from people where id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	err = person.LoadPhoneNumbers(env.DbMap)
 	if err != nil {
 		return err
 	}
