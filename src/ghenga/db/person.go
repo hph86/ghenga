@@ -9,14 +9,12 @@ import (
 
 // Person is a person in the database.
 type Person struct {
+	ID           int64
 	Name         string
 	Title        string
 	Department   string
 	EmailAddress string
-	PhoneWork    string
-	PhoneMobile  string
-	PhoneFax     string
-	PhoneOther   string
+	PhoneNumbers []PhoneNumber `db:"-"`
 
 	// Address
 	Street     string
@@ -27,8 +25,6 @@ type Person struct {
 
 	Comment string
 
-	// the following attributes are managed by the server
-	ID        int64
 	ChangedAt time.Time
 	CreatedAt time.Time
 	Version   int64
@@ -37,12 +33,12 @@ type Person struct {
 // PersonJSON is the JSON representation of a Person as returned or consumed by
 // the API.
 type PersonJSON struct {
-	ID           *int64             `json:"id,omitempty"`
-	Name         *string            `json:"name,omitempty"`
-	Title        *string            `json:"title,omitempty"`
-	Department   *string            `json:"department,omitempty"`
-	EmailAddress *string            `json:"email_address,omitempty"`
-	PhoneNumbers *[]PhoneNumberJSON `json:"phone_numbers,omitempty"`
+	ID           *int64            `json:"id,omitempty"`
+	Name         *string           `json:"name,omitempty"`
+	Title        *string           `json:"title,omitempty"`
+	Department   *string           `json:"department,omitempty"`
+	EmailAddress *string           `json:"email_address,omitempty"`
+	PhoneNumbers []PhoneNumberJSON `json:"phone_numbers"`
 
 	Address *AddressJSON `json:"address,omitempty"`
 
@@ -52,12 +48,6 @@ type PersonJSON struct {
 	CreatedAt string `json:"created_at,omitempty"`
 
 	Version int64 `json:"version"`
-}
-
-// PhoneNumberJSON is the JSON representation of a phone number.
-type PhoneNumberJSON struct {
-	Type   string `json:"type"`
-	Number string `json:"number"`
 }
 
 // AddressJSON is the JSON representation of an address.
@@ -72,12 +62,10 @@ type AddressJSON struct {
 // NewPerson returns a new person record.
 func NewPerson(name string) *Person {
 	ts := time.Now()
-
 	return &Person{
 		Name:      name,
 		CreatedAt: ts,
 		ChangedAt: ts,
-		Version:   1,
 	}
 }
 
@@ -108,20 +96,13 @@ func (p Person) MarshalJSON() ([]byte, error) {
 		jp.EmailAddress = &p.EmailAddress
 	}
 
-	numbers := []PhoneNumberJSON{}
-	for _, num := range []struct{ t, n string }{
-		{"work", p.PhoneWork}, {"mobile", p.PhoneMobile}, {"other", p.PhoneOther},
-	} {
-		if num.n == "" {
-			continue
-		}
-
-		numbers = append(numbers, PhoneNumberJSON{
-			Type:   num.t,
-			Number: num.n,
+	jp.PhoneNumbers = []PhoneNumberJSON{}
+	for _, pn := range p.PhoneNumbers {
+		jp.PhoneNumbers = append(jp.PhoneNumbers, PhoneNumberJSON{
+			Type:   pn.Type,
+			Number: pn.Number,
 		})
 	}
-	jp.PhoneNumbers = &numbers
 
 	if p.Street != "" || p.PostalCode != "" || p.State != "" || p.City != "" || p.Country != "" {
 		jp.Address = &AddressJSON{
@@ -157,21 +138,6 @@ func (p *Person) Update(otherPerson PersonJSON) error {
 
 	if otherPerson.EmailAddress != nil {
 		p.EmailAddress = *otherPerson.EmailAddress
-	}
-
-	if otherPerson.PhoneNumbers != nil {
-		for _, pn := range *otherPerson.PhoneNumbers {
-			switch pn.Type {
-			case "work":
-				p.PhoneWork = pn.Number
-			case "mobile":
-				p.PhoneMobile = pn.Number
-			case "other":
-				p.PhoneOther = pn.Number
-			default:
-				return fmt.Errorf("unknown phone number type %v", pn.Type)
-			}
-		}
 	}
 
 	if otherPerson.Comment != nil {
