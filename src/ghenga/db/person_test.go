@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"flag"
 	"io/ioutil"
-	"math/rand"
 	"path/filepath"
 	"testing"
 	"time"
@@ -106,7 +105,7 @@ func TestPersonInsertSelect(t *testing.T) {
 }
 
 func marshal(t *testing.T, item interface{}) []byte {
-	buf, err := json.Marshal(item)
+	buf, err := json.MarshalIndent(item, "", "  ")
 	if err != nil {
 		t.Fatalf("json.Marshal(): %v", err)
 	}
@@ -169,21 +168,24 @@ func TestPersonValidate(t *testing.T) {
 	}
 }
 
-func fakePerson(t *testing.T) *Person {
-	p, err := NewFakePerson("de")
-	if err != nil {
-		t.Fatalf("NewFakePerson(): %v", err)
-	}
-	p.ID = rand.Int63()
-	return p
-}
-
 func TestPersonUpdate(t *testing.T) {
-	p1 := fakePerson(t)
-	p2 := fakePerson(t)
+	db, cleanup := TestDBFilled(t, 20)
+	defer cleanup()
 
-	p1.Update(PersonJSON{Name: &p2.Name})
+	var p Person
+	err := db.SelectOne(&p, "select * from people where id = 12")
+	if err != nil {
+		t.Fatalf("unable to load person 12: %v", err)
+	}
 
-	// create another fake person
+	p.Name = "foo bar"
+	if _, err = db.Update(&p); err != nil {
+		t.Fatalf("unable to update person: %v", err)
+	}
 
+	p.Title = "CTO"
+	p.Version = 1
+	if _, err = db.Update(&p); err == nil {
+		t.Fatalf("update did not fail despite wrong version field")
+	}
 }

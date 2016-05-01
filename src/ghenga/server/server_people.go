@@ -91,9 +91,7 @@ func UpdatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 	}
 
 	// only update a few fields from p
-	if err = p.Update(newPerson); err != nil {
-		return StatusError{Code: http.StatusBadRequest, Err: err}
-	}
+	p.Update(newPerson)
 
 	p.ChangedAt = time.Now()
 

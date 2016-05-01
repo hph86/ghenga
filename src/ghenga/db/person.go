@@ -35,16 +35,16 @@ type Person struct {
 // PersonJSON is the JSON representation of a Person as returned or consumed by
 // the API.
 type PersonJSON struct {
-	ID           *int64            `json:"id,omitempty"`
-	Name         *string           `json:"name,omitempty"`
-	Title        *string           `json:"title,omitempty"`
-	Department   *string           `json:"department,omitempty"`
-	EmailAddress *string           `json:"email_address,omitempty"`
+	ID           int64             `json:"id,omitempty"`
+	Name         string            `json:"name,omitempty"`
+	Title        string            `json:"title,omitempty"`
+	Department   string            `json:"department,omitempty"`
+	EmailAddress string            `json:"email_address,omitempty"`
 	PhoneNumbers []PhoneNumberJSON `json:"phone_numbers"`
 
-	Address *AddressJSON `json:"address,omitempty"`
+	Address AddressJSON `json:"address,omitempty"`
 
-	Comment *string `json:"comment,omitempty"`
+	Comment string `json:"comment,omitempty"`
 
 	ChangedAt string `json:"changed_at,omitempty"`
 	CreatedAt string `json:"created_at,omitempty"`
@@ -78,25 +78,17 @@ const timeLayout = "2006-01-02T15:04:05-07:00"
 // MarshalJSON returns the JSON representation of p.
 func (p Person) MarshalJSON() ([]byte, error) {
 	jp := PersonJSON{
-		ID:   &p.ID,
-		Name: &p.Name,
+		ID:   p.ID,
+		Name: p.Name,
 
 		ChangedAt: p.ChangedAt.Format(timeLayout),
 		CreatedAt: p.CreatedAt.Format(timeLayout),
 		Version:   p.Version,
 	}
 
-	if p.Title != "" {
-		jp.Title = &p.Title
-	}
-
-	if p.Department != "" {
-		jp.Department = &p.Department
-	}
-
-	if p.EmailAddress != "" {
-		jp.EmailAddress = &p.EmailAddress
-	}
+	jp.Title = p.Title
+	jp.Department = p.Department
+	jp.EmailAddress = p.EmailAddress
 
 	jp.PhoneNumbers = []PhoneNumberJSON{}
 	for _, pn := range p.PhoneNumbers {
@@ -106,20 +98,15 @@ func (p Person) MarshalJSON() ([]byte, error) {
 		})
 	}
 
-	if p.Street != "" || p.PostalCode != "" || p.State != "" || p.City != "" || p.Country != "" {
-		jp.Address = &AddressJSON{
-			Street:     p.Street,
-			PostalCode: p.PostalCode,
-			State:      p.State,
-			City:       p.City,
-			Country:    p.Country,
-		}
+	jp.Address = AddressJSON{
+		Street:     p.Street,
+		PostalCode: p.PostalCode,
+		State:      p.State,
+		City:       p.City,
+		Country:    p.Country,
 	}
 
-	if p.Comment != "" {
-		jp.Comment = &p.Comment
-	}
-
+	jp.Comment = p.Comment
 	return json.Marshal(jp)
 }
 
@@ -127,23 +114,6 @@ func (p Person) MarshalJSON() ([]byte, error) {
 func (p *Person) Validate() error {
 	if p.Name == "" {
 		return errors.New("name is empty")
-	}
-
-	return nil
-}
-
-// Update changes the fields present in otherPerson.
-func (p *Person) Update(otherPerson PersonJSON) error {
-	if otherPerson.Name != nil {
-		p.Name = *otherPerson.Name
-	}
-
-	if otherPerson.EmailAddress != nil {
-		p.EmailAddress = *otherPerson.EmailAddress
-	}
-
-	if otherPerson.Comment != nil {
-		p.Comment = *otherPerson.Comment
 	}
 
 	return nil
@@ -170,6 +140,24 @@ func (p *Person) PostInsert(db modl.SqlExecutor) error {
 // LoadPhoneNumbers loads the phone numbers associated with the person.
 func (p *Person) LoadPhoneNumbers(db *modl.DbMap) error {
 	return db.Select(&p.PhoneNumbers, "SELECT * FROM phone_numbers WHERE person_id = ?", p.ID)
+}
+
+// Update updates p with the fields from other.
+func (p *Person) Update(other PersonJSON) {
+	p.Name = other.Name
+	p.Title = other.Title
+	p.Department = other.Department
+	p.EmailAddress = other.EmailAddress
+
+	// p.PhoneNumbers.Update(other.PhoneNumbers)
+
+	p.Street = other.Address.Street
+	p.PostalCode = other.Address.PostalCode
+	p.State = other.Address.State
+	p.City = other.Address.City
+	p.Country = other.Address.Country
+
+	p.Comment = other.Comment
 }
 
 func (p Person) String() string {
