@@ -35,6 +35,8 @@ Vagrant.configure(2) do |config|
           -o Dpkg::Options::="--force-confnew" \
           curl wget git vim tmux screen zsh sqlite3 npm
 
+       locale-gen -a de_DE.UTF-8 en_US.UTF-8 en_GB.UTF-8
+
        ln -sf /usr/bin/nodejs /usr/bin/node
        npm install -g bower
   SHELL
