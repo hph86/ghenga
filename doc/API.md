@@ -5,9 +5,13 @@ ghenga manages are described in the file [Models.md](Models.md).
 
 All objects have a `version` attribute, which is automatically incremented with
 each new version of the same object. On update (via `PUT`), the latest version
-known to the client must be submitted. If the version in the database has
-increased in the meantime, the update fails and the user can be informed that
-someone else has modified the same object.
+must be submitted. If the version in the database has increased in the
+meantime, the update fails and the user can be informed that someone else has
+modified the same object.
+
+When an object is updated, all fields of the object must be submitted in the
+`PUT` request. Fields are not present in the JSON data are deleted or reset to
+their default value.
 
 # Endpoints
 
