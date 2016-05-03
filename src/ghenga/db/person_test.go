@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/jmoiron/modl"
 )
 
 var update = flag.Bool("update", false, "update golden files")
@@ -181,5 +183,66 @@ func TestPersonUpdate(t *testing.T) {
 	p.Version = 1
 	if _, err = db.Update(p); err == nil {
 		t.Fatalf("update did not fail despite wrong version field")
+	}
+}
+
+func findPerson(t *testing.T, db *modl.DbMap, id int64) *Person {
+	p, err := FindPerson(db, 14)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return p
+}
+
+func updatePerson(t *testing.T, db *modl.DbMap, p *Person) {
+	_, err := db.Update(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestPersonUpdatePhoneNumbers(t *testing.T) {
+	db, cleanup := TestDBFilled(t, 20)
+	defer cleanup()
+
+	p := findPerson(t, db, 14)
+	p.PhoneNumbers = append(p.PhoneNumbers, PhoneNumber{Type: "test", Number: "12345"})
+
+	updatePerson(t, db, p)
+
+	p2 := findPerson(t, db, p.ID)
+	if !p.PhoneNumbers.Equals(p2.PhoneNumbers) {
+		t.Fatalf("changing phone numbers did not work, want:\n%v\n  got:\n%v", p.PhoneNumbers, p2.PhoneNumbers)
+	}
+}
+
+func TestPersonDeletePhoneNumber(t *testing.T) {
+	db, cleanup := TestDBFilled(t, 20)
+	defer cleanup()
+
+	p := findPerson(t, db, 14)
+	p.PhoneNumbers = p.PhoneNumbers[1:]
+
+	updatePerson(t, db, p)
+
+	p2 := findPerson(t, db, p.ID)
+	if !p.PhoneNumbers.Equals(p2.PhoneNumbers) {
+		t.Fatalf("changing phone numbers did not work, want:\n%v\n  got:\n%v", p.PhoneNumbers, p2.PhoneNumbers)
+	}
+}
+
+func TestPersonDeleteAllPhoneNumbers(t *testing.T) {
+	db, cleanup := TestDBFilled(t, 20)
+	defer cleanup()
+
+	p := findPerson(t, db, 14)
+	p.PhoneNumbers = PhoneNumbers{}
+
+	updatePerson(t, db, p)
+
+	p2 := findPerson(t, db, p.ID)
+	if len(p2.PhoneNumbers) > 0{
+		t.Fatalf("removing phone numbers did not work, got:\n%v", p2.PhoneNumbers)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/modl"
+	"github.com/jmoiron/sqlx"
 )
 
 // Person is a person in the database.
@@ -16,7 +17,7 @@ type Person struct {
 	Title        string
 	Department   string
 	EmailAddress string
-	PhoneNumbers []PhoneNumber `db:"-"`
+	PhoneNumbers PhoneNumbers `db:"-"`
 
 	// Address
 	Street     string
@@ -140,6 +141,42 @@ func (p *Person) PostInsert(db modl.SqlExecutor) error {
 // PostGet loads the phone numbers associated with the person.
 func (p *Person) PostGet(db modl.SqlExecutor) error {
 	return db.Select(&p.PhoneNumbers, "SELECT * FROM phone_numbers WHERE person_id = ?", p.ID)
+}
+
+// PostUpdate is run after a person has been updated. It handles updating the
+// phone numbers for a person.
+func (p *Person) PostUpdate(db modl.SqlExecutor) error {
+	var ids []int64
+	for _, num := range p.PhoneNumbers {
+		num.PersonID = p.ID
+		var err error
+		if num.ID != 0 {
+			_, err = db.Update(&num)
+		} else {
+			err = db.Insert(&num)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		ids = append(ids, num.ID)
+	}
+
+	if len(ids) > 0 {
+		// remove excess phone numbers
+		query, args, err := sqlx.In("DELETE FROM phone_numbers WHERE person_id = ? AND id NOT IN (?)", p.ID, ids)
+		if err != nil {
+			return err
+		}
+
+		_, err = db.Exec(query, args...)
+		return err
+	}
+
+	// else remove all phone numbers
+	_, err := db.Exec("DELETE FROM phone_numbers WHERE person_id = ?", p.ID)
+	return err
 }
 
 // Update updates p with the fields from other.
