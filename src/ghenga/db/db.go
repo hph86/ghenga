@@ -4,6 +4,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -85,6 +86,10 @@ func TestDB(t *testing.T) (*modl.DbMap, func()) {
 	dbmap, err := configDBMap(db)
 	if err != nil {
 		t.Fatalf("configDBMap(): %v", err)
+	}
+
+	if os.Getenv("DBTRACE") != "" {
+		dbmap.TraceOn("DB: ", log.New(os.Stderr, "", log.LstdFlags))
 	}
 
 	return dbmap, func() {
