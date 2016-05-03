@@ -170,3 +170,15 @@ func (p Person) String() string {
 
 	return fmt.Sprintf("<Person (%v)%s>", p.Name, numbers)
 }
+
+// FindPerson returns the person struct with the given id.
+func FindPerson(db *modl.DbMap, id int64) (*Person, error) {
+	var p Person
+
+	err := db.SelectOne(&p, "SELECT * FROM people WHERE id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &p, nil
+}

@@ -167,20 +167,19 @@ func TestPersonUpdate(t *testing.T) {
 	db, cleanup := TestDBFilled(t, 20)
 	defer cleanup()
 
-	var p Person
-	err := db.SelectOne(&p, "select * from people where id = 12")
+	p, err := FindPerson(db, 12)
 	if err != nil {
 		t.Fatalf("unable to load person 12: %v", err)
 	}
 
 	p.Name = "foo bar"
-	if _, err = db.Update(&p); err != nil {
+	if _, err = db.Update(p); err != nil {
 		t.Fatalf("unable to update person: %v", err)
 	}
 
 	p.Title = "CTO"
 	p.Version = 1
-	if _, err = db.Update(&p); err == nil {
+	if _, err = db.Update(p); err == nil {
 		t.Fatalf("update did not fail despite wrong version field")
 	}
 }
