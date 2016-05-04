@@ -186,7 +186,14 @@ func (p *Person) Update(other PersonJSON) {
 	p.Department = other.Department
 	p.EmailAddress = other.EmailAddress
 
-	// p.PhoneNumbers.Update(other.PhoneNumbers)
+	p.PhoneNumbers = nil
+
+	for _, num := range other.PhoneNumbers {
+		p.PhoneNumbers = append(p.PhoneNumbers, PhoneNumber{
+			Type:   num.Type,
+			Number: num.Number,
+		})
+	}
 
 	p.Street = other.Address.Street
 	p.PostalCode = other.Address.PostalCode
