@@ -1,0 +1,37 @@
+{
+  "id": 100,
+  "version": 5,
+  "name": "Nicolai Person",
+  "title": "CEO",
+  "department": "Management",
+  "email_addresses": "marlene@kleiningerkneifel.org",
+  "phone_numbers": [
+    {
+      "type": "work",
+      "number": "+49 221 1231234"
+    },
+    {
+      "type": "mobile",
+      "number": "+49 157 123123123"
+    },
+    {
+      "type": "fax",
+      "number": "+49 157 123123125"
+    },
+    {
+      "type": "other",
+      "number": "+49 221 1231235"
+    }
+  ],
+  "address": {
+    "street": "Teststraße 23",
+    "postal_code": "50023",
+    "state": null,
+    "city": "Köln",
+    "country": "Germany"
+  },
+  "comment": "This is a comment",
+  "account_id": 123,
+  "changed_at": "2016-04-24T10:30:07+00:00",
+  "created_at": "2016-04-24T10:30:07+00:00"
+}
