@@ -242,7 +242,7 @@ func TestPersonDeleteAllPhoneNumbers(t *testing.T) {
 	updatePerson(t, db, p)
 
 	p2 := findPerson(t, db, p.ID)
-	if len(p2.PhoneNumbers) > 0{
+	if len(p2.PhoneNumbers) > 0 {
 		t.Fatalf("removing phone numbers did not work, got:\n%v", p2.PhoneNumbers)
 	}
 }
@@ -261,4 +261,3 @@ func TestPersonReplacePhoneNumbers(t *testing.T) {
 		t.Fatalf("changing phone numbers did not work, want:\n%v\n  got:\n%v", p.PhoneNumbers, p2.PhoneNumbers)
 	}
 }
-
