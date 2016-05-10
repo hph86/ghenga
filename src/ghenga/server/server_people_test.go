@@ -44,7 +44,7 @@ func postJSON(t *testing.T, url string, data []byte) []byte {
 }
 
 func readFixture(t *testing.T, filename string) []byte {
-	p, err := ioutil.ReadFile(filepath.Join("test-fixtures", "sample_person.json"))
+	p, err := ioutil.ReadFile(filepath.Join("testdata", "sample_person.json"))
 	if err != nil {
 		t.Fatalf("unable to read test fixture: %v", err)
 	}

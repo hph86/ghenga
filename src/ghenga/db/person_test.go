@@ -114,7 +114,7 @@ func TestPersonMarshal(t *testing.T) {
 	for i, test := range testPersons {
 		buf := marshal(t, test.p)
 
-		golden := filepath.Join("test-fixtures", "TestPersonMarshal_"+test.name+".golden")
+		golden := filepath.Join("testdata", "TestPersonMarshal_"+test.name+".golden")
 		if *update {
 			err := ioutil.WriteFile(golden, buf, 0644)
 			if err != nil {
