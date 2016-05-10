@@ -166,7 +166,7 @@ func TestPersonValidate(t *testing.T) {
 }
 
 func TestPersonUpdate(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20)
+	db, cleanup := TestDBFilled(t, 20, 3)
 	defer cleanup()
 
 	p, err := FindPerson(db, 12)
@@ -203,7 +203,7 @@ func updatePerson(t *testing.T, db *modl.DbMap, p *Person) {
 }
 
 func TestPersonUpdatePhoneNumbers(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20)
+	db, cleanup := TestDBFilled(t, 20, 3)
 	defer cleanup()
 
 	p := findPerson(t, db, 14)
@@ -218,7 +218,7 @@ func TestPersonUpdatePhoneNumbers(t *testing.T) {
 }
 
 func TestPersonDeletePhoneNumber(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20)
+	db, cleanup := TestDBFilled(t, 20, 3)
 	defer cleanup()
 
 	p := findPerson(t, db, 14)
@@ -233,7 +233,7 @@ func TestPersonDeletePhoneNumber(t *testing.T) {
 }
 
 func TestPersonDeleteAllPhoneNumbers(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20)
+	db, cleanup := TestDBFilled(t, 20, 3)
 	defer cleanup()
 
 	p := findPerson(t, db, 14)
@@ -248,7 +248,7 @@ func TestPersonDeleteAllPhoneNumbers(t *testing.T) {
 }
 
 func TestPersonReplacePhoneNumbers(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20)
+	db, cleanup := TestDBFilled(t, 20, 3)
 	defer cleanup()
 
 	p := findPerson(t, db, 14)

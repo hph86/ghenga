@@ -31,7 +31,7 @@ func TestInsertFakeData(t *testing.T) {
 	defer cleanup()
 
 	before := countPeople(t, db)
-	if err := InsertFakeData(db, 234); err != nil {
+	if err := InsertFakeData(db, 234, 5); err != nil {
 		t.Fatalf("InsertFakeData(): %v", err)
 	}
 
@@ -42,7 +42,7 @@ func TestInsertFakeData(t *testing.T) {
 }
 
 func TestTestDBFilled(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 234)
+	db, cleanup := TestDBFilled(t, 234, 5)
 	defer cleanup()
 
 	people := countPeople(t, db)

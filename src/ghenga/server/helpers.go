@@ -16,12 +16,15 @@ func cleanupErr(err *error, fn func() error) {
 	}
 }
 
-const fakePersonProfiles = 200
+const (
+	fakePersonProfiles = 200
+	fakeUserProfiles   = 5
+)
 
 // TestEnv returns a test environment running on an in-memory database filled
 // with test data.
 func TestEnv(t *testing.T) (env *Env, cleanup func()) {
-	db, dbcleanup := db.TestDBFilled(t, fakePersonProfiles)
+	db, dbcleanup := db.TestDBFilled(t, fakePersonProfiles, fakeUserProfiles)
 
 	env = &Env{
 		DbMap: db,

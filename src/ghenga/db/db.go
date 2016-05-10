@@ -62,6 +62,7 @@ func configDBMap(db *sql.DB) (*modl.DbMap, error) {
 	dbmap := modl.NewDbMap(db, modl.SqliteDialect{})
 	dbmap.AddTableWithName(Person{}, "people").SetKeys(true, "id")
 	dbmap.AddTableWithName(PhoneNumber{}, "phone_numbers").SetKeys(true, "id")
+	dbmap.AddTableWithName(User{}, "users").SetKeys(true, "id")
 
 	return dbmap, migrateUp(db)
 }

@@ -56,8 +56,23 @@ func NewFakePerson(lang string) (*Person, error) {
 	return p, nil
 }
 
+// NewFakeUser returns a User struct filled with fake data.
+func NewFakeUser(lang string) (*User, error) {
+	f, err := faker.New(lang)
+	if err != nil {
+		return nil, err
+	}
+
+	u := &User{
+		Login: f.UserName(),
+		Name:  f.FirstName() + " " + f.LastName(),
+	}
+
+	return u, nil
+}
+
 // InsertFakeData will populate the db with fake (but realistic) data.
-func InsertFakeData(dbm *modl.DbMap, people int) error {
+func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	for i := 0; i < people; i++ {
 		p, err := NewFakePerson("de")
 		if err != nil {
@@ -70,14 +85,26 @@ func InsertFakeData(dbm *modl.DbMap, people int) error {
 		}
 	}
 
+	for i := 0; i < user; i++ {
+		u, err := NewFakeUser("de")
+		if err != nil {
+			return err
+		}
+
+		err = dbm.Insert(u)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
 // TestDBFilled returns an in-memory database filled with fake data.
-func TestDBFilled(t *testing.T, people int) (*modl.DbMap, func()) {
+func TestDBFilled(t *testing.T, people, user int) (*modl.DbMap, func()) {
 	db, cleanup := TestDB(t)
 
-	err := InsertFakeData(db, people)
+	err := InsertFakeData(db, people, user)
 	if err != nil {
 		t.Fatalf("TestFillDB(): %v", err)
 	}

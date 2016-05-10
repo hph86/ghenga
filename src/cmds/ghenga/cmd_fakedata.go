@@ -7,6 +7,7 @@ import (
 
 type cmdFakedata struct {
 	People int `short:"p" long:"people" default:"500" description:"Number of fake people profiles to create"`
+	User   int `short:"u" long:"user" default:"5" description:"Number of fake user to create"`
 }
 
 func init() {
@@ -28,7 +29,7 @@ func (opts *cmdFakedata) Execute(args []string) (err error) {
 
 	log.Printf("inserting fake data into the db...")
 
-	err = db.InsertFakeData(dbm, opts.People)
+	err = db.InsertFakeData(dbm, opts.People, opts.User)
 	if err != nil {
 		panic(err)
 	}

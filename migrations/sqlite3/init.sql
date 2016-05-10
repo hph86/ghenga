@@ -29,6 +29,19 @@ create table phone_numbers (
     foreign key (person_id) references people(id) on update cascade on delete cascade
 );
 
+create table users (
+    id integer not null primary key autoincrement,
+    version int not null,
+    created_at datetime not null,
+    changed_at datetime not null,
+
+    name text not null,
+    login text not null,
+    password_hash text not null
+);
+
+
 -- +migrate Down
 drop table people;
 drop table phone_numbers;
+drop table users;
