@@ -82,20 +82,30 @@ func UpdatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	var p db.Person
-	if err = env.DbMap.SelectOne(&p, "select * from people where id = ?", id); err != nil {
-		return err
-	}
-
-	log.Printf("loaded %v from db", p)
-
 	var newPerson db.PersonJSON
 	dec := json.NewDecoder(req.Body)
 	if err = dec.Decode(&newPerson); err != nil {
 		return err
 	}
 
-	// only update a few fields from p
+	var p db.Person
+	if err = env.DbMap.SelectOne(&p, "select id,created_at,version from people where id = ?", id); err != nil {
+		log.Printf("unable to find person ID %v, sql error: %v", id, err)
+		return err
+	}
+
+	log.Printf("loaded %v from db", p)
+
+	if p.Version != newPerson.Version {
+		log.Printf("person record is outdated, version %v != %v",
+			p.Version, newPerson.Version)
+		return StatusError{
+			Err:  errors.New("version field does not match"),
+			Code: http.StatusConflict,
+		}
+	}
+
+	// update all fields except
 	p.Update(newPerson)
 
 	p.ChangedAt = time.Now()
@@ -108,6 +118,7 @@ func UpdatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 	log.Printf("save %v", p)
 	_, err = env.DbMap.Update(&p)
 	if err != nil {
+		log.Printf("unable update person %v, sql error: %v", p, err)
 		return err
 	}
 
@@ -140,10 +151,6 @@ func DeletePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 
 // PeopleHandler adds routes to the for ghenga API in the given enviroment to r.
 func PeopleHandler(env *Env, r *mux.Router) {
-	if r == nil {
-		panic("no router given")
-	}
-
 	r.Handle("/api/person", Handler{H: ListPeople, Env: env}).Methods("GET")
 	r.Handle("/api/person", Handler{H: CreatePerson, Env: env}).Methods("POST")
 	r.Handle("/api/person/{id}", Handler{H: ShowPerson, Env: env}).Methods("GET")

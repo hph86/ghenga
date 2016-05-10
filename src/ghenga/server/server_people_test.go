@@ -77,8 +77,9 @@ func readFixture(t *testing.T, filename string) []byte {
 }
 
 type Person struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	Version int    `json:"version"`
 }
 
 func verifyPerson(t *testing.T, name string, data []byte) Person {
@@ -126,9 +127,12 @@ func TestPersonCRUD(t *testing.T) {
 		t.Fatalf("reading person again yielded unexpected status %d", status)
 	}
 
-	verifyPerson(t, person.Name, body)
+	t.Logf("person: %v", person)
 
+	person = verifyPerson(t, person.Name, body)
 	person.Name = "Robert Niemand"
+
+	t.Logf("person: %v", person)
 
 	status, body = request(t, "PUT", fmt.Sprintf("%s/api/person/%d", srv.URL, person.ID), marshal(t, person))
 	if status != 200 {

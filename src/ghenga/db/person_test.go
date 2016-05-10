@@ -101,6 +101,23 @@ func TestPersonInsertSelect(t *testing.T) {
 	}
 }
 
+func TestPersonVersion(t *testing.T) {
+	db, cleanup := TestDBFilled(t, 20, 3)
+	defer cleanup()
+
+	var p Person
+	err := db.SelectOne(&p, "SELECT * FROM people WHERE id = 14")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p.Version = 25
+	_, err = db.Update(&p)
+	if err == nil {
+		t.Fatalf("expected error due to outdated version not found")
+	}
+}
+
 func marshal(t *testing.T, item interface{}) []byte {
 	buf, err := json.MarshalIndent(item, "", "  ")
 	if err != nil {

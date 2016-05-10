@@ -202,6 +202,8 @@ func (p *Person) Update(other PersonJSON) {
 	p.Country = other.Address.Country
 
 	p.Comment = other.Comment
+
+	p.Version = other.Version
 }
 
 func (p Person) String() string {
