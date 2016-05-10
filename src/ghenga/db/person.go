@@ -212,7 +212,7 @@ func (p Person) String() string {
 		}
 	}
 
-	return fmt.Sprintf("<Person (%v)%s>", p.Name, numbers)
+	return fmt.Sprintf("<Person[%v] (%v)%s>", p.ID, p.Name, numbers)
 }
 
 // FindPerson returns the person struct with the given id.

@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"ghenga/db"
 	"log"
 	"net/http"
@@ -35,7 +36,10 @@ func ShowPerson(env *Env, res http.ResponseWriter, req *http.Request) error {
 	var person db.Person
 	err = env.DbMap.SelectOne(&person, "select * from people where id = ?", id)
 	if err != nil {
-		return err
+		return StatusError{
+			Err:  errors.New("person not found"),
+			Code: http.StatusNotFound,
+		}
 	}
 
 	return httpWriteJSON(res, http.StatusOK, person)
@@ -107,7 +111,7 @@ func UpdatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 		return err
 	}
 
-	return httpWriteJSON(wr, http.StatusCreated, p)
+	return httpWriteJSON(wr, http.StatusOK, p)
 }
 
 // DeletePerson removes a person from the database.
@@ -117,19 +121,21 @@ func DeletePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	var p db.Person
-	if err = env.DbMap.SelectOne(&p, "select * from people where id = ?", id); err != nil {
-		return err
-	}
+	res := env.DbMap.Dbx.MustExec("delete from people where id = ?", id)
 
-	log.Printf("loaded %v from db", p)
-
-	_, err = env.DbMap.Delete(&p)
+	n, err := res.RowsAffected()
 	if err != nil {
 		return err
 	}
 
-	return httpWriteJSON(wr, http.StatusOK, p)
+	if n != 1 {
+		return StatusError{
+			Err:  errors.New("person not found"),
+			Code: http.StatusNotFound,
+		}
+	}
+
+	return httpWriteJSON(wr, http.StatusOK, nil)
 }
 
 // PeopleHandler adds routes to the for ghenga API in the given enviroment to r.

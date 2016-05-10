@@ -33,9 +33,12 @@ func httpWriteJSON(wr http.ResponseWriter, status int, data interface{}) error {
 	wr.Header().Set("Content-Type", "application/json; charset=utf-8")
 	wr.WriteHeader(status)
 
-	enc := json.NewEncoder(wr)
+	if data == nil {
+		_, err := wr.Write([]byte("{}\n"))
+		return err
+	}
 
-	return enc.Encode(data)
+	return json.NewEncoder(wr).Encode(data)
 }
 
 // jsonError is the struct for an error message returned by the API server.
