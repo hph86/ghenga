@@ -4,6 +4,7 @@ import (
 	"ghenga/db"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -28,6 +29,9 @@ func TestEnv(t *testing.T) (env *Env, cleanup func()) {
 
 	env = &Env{
 		DbMap: db,
+		Cfg: Config{
+			SessionDuration: 600 * time.Second,
+		},
 	}
 
 	return env, func() { dbcleanup() }

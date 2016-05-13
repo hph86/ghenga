@@ -3,7 +3,9 @@ package server
 import (
 	"errors"
 	"ghenga/db"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -24,21 +26,24 @@ func Login(env *Env, res http.ResponseWriter, req *http.Request) error {
 		}
 	}
 
-	u, err := db.FindUser(env.DbMap, username)
-	if err != nil {
-		return err
-	}
+	log.Printf("login user %v, password %v", username, password)
 
-	if !u.CheckPassword(password) {
+	u, err := db.FindUser(env.DbMap, username)
+	if err != nil || !u.CheckPassword(password) {
 		return StatusError{
 			Code: http.StatusUnauthorized,
 			Err:  errors.New("invalid username or password"),
 		}
 	}
 
+	session, err := db.SaveNewSession(env.DbMap, username, env.Cfg.SessionDuration)
+	if err != nil {
+		return err
+	}
+
 	return httpWriteJSON(res, http.StatusOK, LoginResponseJSON{
-		Token:    "1234foobar",
-		ValidFor: 7200,
+		Token:    session.Token,
+		ValidFor: uint(time.Now().Sub(session.ValidUntil) / time.Second),
 	})
 }
 

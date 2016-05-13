@@ -50,7 +50,7 @@ func login(t *testing.T, srv *TestSrv, username, password string) (token string)
 	unmarshal(t, body, &response)
 
 	if response.Token == "" || response.ValidFor == 0 {
-		t.Fatalf("invalid response from login endpoint: %v", body)
+		t.Fatalf("invalid response from login endpoint:\n%s", body)
 	}
 
 	return response.Token

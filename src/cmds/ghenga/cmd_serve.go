@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/handlers"
 )
@@ -26,6 +27,8 @@ func init() {
 	}
 }
 
+const sessionDuration = 24 * time.Hour
+
 func (opts *cmdServe) Execute(args []string) (err error) {
 	dbmap, cleanup, e := OpenDB()
 	if e != nil {
@@ -37,7 +40,10 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 
 	env := &server.Env{
 		DbMap: dbmap,
-		Debug: globalOpts.Debug,
+		Cfg: server.Config{
+			Debug:           globalOpts.Debug,
+			SessionDuration: sessionDuration,
+		},
 	}
 
 	router := server.NewRouter(env)

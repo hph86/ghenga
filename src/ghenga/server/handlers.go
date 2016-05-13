@@ -14,7 +14,7 @@ import (
 // Env is an environment for a handler function.
 type Env struct {
 	DbMap *modl.DbMap
-	Debug bool
+	Cfg   Config
 }
 
 // HandleFunc is a function similar to http.HandleFunc, but extended by an
@@ -61,7 +61,7 @@ func (h Handler) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 			log.Printf("unhandled error: %#v", err)
 			je := jsonError{Message: "internal server error"}
 
-			if h.Env.Debug {
+			if h.Env.Cfg.Debug {
 				je.Message = e.Error()
 			}
 
