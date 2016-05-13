@@ -35,6 +35,11 @@ func loginRequest(t *testing.T, srv *TestSrv, username, password string) (status
 	return res.StatusCode, buf
 }
 
+type loginResponse struct {
+	Token    string `json:"token"`
+	ValidFor uint   `json:"valid_for"`
+}
+
 func login(t *testing.T, srv *TestSrv, username, password string) (token string) {
 	status, body := loginRequest(t, srv, username, password)
 
@@ -42,11 +47,7 @@ func login(t *testing.T, srv *TestSrv, username, password string) (token string)
 		t.Fatalf("unexpected status %v, expected 200", status)
 	}
 
-	var response struct {
-		Token    string `json:"token"`
-		ValidFor uint   `json:"valid_for"`
-	}
-
+	var response loginResponse
 	unmarshal(t, body, &response)
 
 	if response.Token == "" || response.ValidFor == 0 {
@@ -81,5 +82,48 @@ func TestLogin(t *testing.T) {
 			t.Errorf("invalid response for invalid login request (%v/%v): status %v, body:\n%s",
 				test.u, test.p, status, body)
 		}
+	}
+}
+
+func TestCheck(t *testing.T) {
+	srv, cleanup := TestServer(t)
+	defer cleanup()
+
+	token := login(t, srv, "admin", "geheim")
+	if token == "" {
+		t.Fatalf("invalid response for valid login request: token %v", token)
+	}
+
+	req, err := http.NewRequest(http.MethodGet, srv.URL+"/login/check", nil)
+	if err != nil {
+		t.Fatalf("NewRequest() %v", err)
+	}
+
+	req.Header.Add("X-Auth-Token", token)
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+
+	buf, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Fatalf("read body failed: %v", err)
+	}
+
+	err = res.Body.Close()
+	if err != nil {
+		t.Fatalf("Body.Close() %v", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("http response status %v unexpected, want 200", res.Status)
+	}
+
+	var response loginResponse
+	unmarshal(t, buf, &response)
+
+	if response.Token != token || response.ValidFor == 0 {
+		t.Fatalf("invalid response for check request: %v", response)
 	}
 }

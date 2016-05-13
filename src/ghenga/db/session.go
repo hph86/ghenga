@@ -3,6 +3,7 @@ package db
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"time"
 
@@ -14,6 +15,11 @@ type Session struct {
 	Token      string
 	User       string
 	ValidUntil time.Time
+}
+
+func (s Session) String() string {
+	return fmt.Sprintf("<Session %v, user %v (valid %v)>",
+		s.Token[:8], s.User, s.ValidUntil.Sub(time.Now()))
 }
 
 const tokenLength = 32
