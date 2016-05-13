@@ -37,6 +37,9 @@ The body of response looks as follows:
 The token needs to be submitted in the HTTP header `X-Auth-Token` for all
 requests to the API.
 
+If the login was not successful, the HTTP response code is 401 (Unauthorized)
+and the body will be empty.
+
 ### GET /login/info
 
 This endpoint can be called with a valid authentication token in the HTTP
