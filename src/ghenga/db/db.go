@@ -63,6 +63,7 @@ func configDBMap(db *sql.DB) (*modl.DbMap, error) {
 	dbmap.AddTableWithName(Person{}, "people").SetKeys(true, "id")
 	dbmap.AddTableWithName(PhoneNumber{}, "phone_numbers").SetKeys(true, "id")
 	dbmap.AddTableWithName(User{}, "users").SetKeys(true, "id")
+	dbmap.AddTableWithName(Session{}, "sessions")
 
 	return dbmap, migrateUp(db)
 }
@@ -77,9 +78,16 @@ func Init(dbfile string) (*modl.DbMap, error) {
 	return configDBMap(db)
 }
 
-// TestDB returns an in-memory database suitable for testing.
+// TestDB returns an in-memory database suitable for testing. If the
+// environment variable GHENGA_TEST_DB is set to a file name, this is used
+// instead.
 func TestDB(t *testing.T) (*modl.DbMap, func()) {
-	dbmap, err := Init(":memory:")
+	filename := os.Getenv("GHENGA_TEST_DB")
+	if filename == "" {
+		filename = ":memory:"
+	}
+
+	dbmap, err := Init(filename)
 	if err != nil {
 		t.Fatalf("unable to initialize db: %v", err)
 	}

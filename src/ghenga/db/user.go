@@ -44,6 +44,7 @@ func (u User) String() string {
 	return fmt.Sprintf("<User %v (%v)>", u.Login, u.ID)
 }
 
+// FindUser searches the database for a user based on their login name.
 func FindUser(db *modl.DbMap, login string) (*User, error) {
 	var u User
 	err := db.SelectOne(&u, "SELECT * FROM users WHERE login = ?", login)
