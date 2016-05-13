@@ -7,7 +7,7 @@ import (
 )
 
 func loginRequest(t *testing.T, srv *TestSrv, username, password string) (status int, body []byte) {
-	req, err := http.NewRequest(http.MethodGet, srv.URL+"/login/token", nil)
+	req, err := http.NewRequest("GET", srv.URL+"/api/login/token", nil)
 	if err != nil {
 		t.Fatalf("unable to create login request: %v", err)
 	}
@@ -94,7 +94,7 @@ func TestCheck(t *testing.T) {
 		t.Fatalf("invalid response for valid login request: token %v", token)
 	}
 
-	req, err := http.NewRequest(http.MethodGet, srv.URL+"/login/check", nil)
+	req, err := http.NewRequest("GET", srv.URL+"/api/login/check", nil)
 	if err != nil {
 		t.Fatalf("NewRequest() %v", err)
 	}
