@@ -87,7 +87,7 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 		return err
 	}
 
-	if err := dbm.Insert(&u); err != nil {
+	if err := dbm.Insert(u); err != nil {
 		return err
 	}
 
