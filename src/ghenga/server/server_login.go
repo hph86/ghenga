@@ -85,6 +85,6 @@ func Check(env *Env, res http.ResponseWriter, req *http.Request) error {
 
 // LoginHandler adds routes to the for ghenga API in the given enviroment to r.
 func LoginHandler(env *Env, r *mux.Router) {
-	r.Handle("/login/token", Handler{H: Login, Env: env}).Methods("GET")
-	r.Handle("/login/check", Handler{H: Check, Env: env}).Methods("GET")
+	r.Handle("/api/login/token", Handler{H: Login, Env: env}).Methods("GET")
+	r.Handle("/api/login/check", Handler{H: Check, Env: env}).Methods("GET")
 }
