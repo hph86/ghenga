@@ -2,6 +2,12 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/elithrar/simple-scrypt",
+			"repository": "https://github.com/elithrar/simple-scrypt",
+			"revision": "cbb1ebac08e2ca5495a43f4ef5555e61a7ec7677",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/gorilla/context",
 			"repository": "https://github.com/gorilla/context",
 			"revision": "a8d44e7d8e4d532b6a27a02dd82abb31cc1b01bd",
@@ -60,6 +66,20 @@
 			"repository": "https://github.com/rubenv/sql-migrate",
 			"revision": "969836b11ea791ff8335d8142eb96904db12d593",
 			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/crypto/pbkdf2",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "1e61df8d9ea476e2e1504cd9a32b40280c7c6c7e",
+			"branch": "master",
+			"path": "/pbkdf2"
+		},
+		{
+			"importpath": "golang.org/x/crypto/scrypt",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "1e61df8d9ea476e2e1504cd9a32b40280c7c6c7e",
+			"branch": "master",
+			"path": "/scrypt"
 		}
 	]
 }
