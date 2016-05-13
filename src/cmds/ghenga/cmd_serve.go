@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 )
 
 type cmdServe struct {
@@ -41,8 +40,7 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 		Debug: globalOpts.Debug,
 	}
 
-	router := mux.NewRouter()
-	server.PeopleHandler(env, router)
+	router := server.NewRouter(env)
 
 	// server static files on the root path
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(opts.Public)))

@@ -46,6 +46,8 @@ func TestServer(t *testing.T) (srv *TestSrv, cleanup func()) {
 
 	r := mux.NewRouter()
 	PeopleHandler(env, r)
+	LoginHandler(env, r)
+
 	srv = &TestSrv{
 		Server: httptest.NewServer(r),
 		Env:    env,
