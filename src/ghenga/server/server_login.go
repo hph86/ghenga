@@ -6,11 +6,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// LoginResponseJSON is the structure returned by a login request.
+type LoginResponseJSON struct {
+	Token    string `json:"token"`
+	ValidFor uint   `json:"valid_for"`
+}
+
 // Login allows users to log in and returns a token.
 func Login(env *Env, res http.ResponseWriter, req *http.Request) error {
-	return httpWriteJSON(res, http.StatusOK, map[string]interface{}{
-		"token":     "1234foobar",
-		"valid_for": 7200,
+	return httpWriteJSON(res, http.StatusOK, LoginResponseJSON{
+		Token:    "1234foobar",
+		ValidFor: 7200,
 	})
 }
 

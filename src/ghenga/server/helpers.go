@@ -33,14 +33,23 @@ func TestEnv(t *testing.T) (env *Env, cleanup func()) {
 	return env, func() { dbcleanup() }
 }
 
+// TestSrv bundles a test server with a test environment.
+type TestSrv struct {
+	*httptest.Server
+	*Env
+}
+
 // TestServer returns an *httptest.Server running the ghenga API on an
 // in-memory DB filled with fake data.
-func TestServer(t *testing.T) (srv *httptest.Server, cleanup func()) {
+func TestServer(t *testing.T) (srv *TestSrv, cleanup func()) {
 	env, envcleanup := TestEnv(t)
 
 	r := mux.NewRouter()
 	PeopleHandler(env, r)
-	srv = httptest.NewServer(r)
+	srv = &TestSrv{
+		Server: httptest.NewServer(r),
+		Env:    env,
+	}
 
 	return srv, func() {
 		srv.Close()

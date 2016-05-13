@@ -79,14 +79,9 @@ func Init(dbfile string) (*modl.DbMap, error) {
 
 // TestDB returns an in-memory database suitable for testing.
 func TestDB(t *testing.T) (*modl.DbMap, func()) {
-	db, err := sql.Open(dialect, ":memory:")
+	dbmap, err := Init(":memory:")
 	if err != nil {
-		t.Fatalf("sql.Open(): %v", err)
-	}
-
-	dbmap, err := configDBMap(db)
-	if err != nil {
-		t.Fatalf("configDBMap(): %v", err)
+		t.Fatalf("unable to initialize db: %v", err)
 	}
 
 	if os.Getenv("DBTRACE") != "" {

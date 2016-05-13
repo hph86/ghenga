@@ -35,7 +35,6 @@ create table users (
     created_at datetime not null,
     changed_at datetime not null,
 
-    name text not null,
     login text not null,
     password_hash text not null
 );

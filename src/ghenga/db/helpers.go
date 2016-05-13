@@ -56,22 +56,19 @@ func NewFakePerson(lang string) (*Person, error) {
 	return p, nil
 }
 
-// NewFakeUser returns a User struct filled with fake data.
+// NewFakeUser returns a User struct filled with fake data. The password is
+// always set to "geheim".
 func NewFakeUser(lang string) (*User, error) {
 	f, err := faker.New(lang)
 	if err != nil {
 		return nil, err
 	}
 
-	u := &User{
-		Login: f.UserName(),
-		Name:  f.FirstName() + " " + f.LastName(),
-	}
-
-	return u, nil
+	return NewUser(f.UserName(), "geheim")
 }
 
-// InsertFakeData will populate the db with fake (but realistic) data.
+// InsertFakeData will populate the db with fake (but realistic) data. Among
+// others, a user named "admin" with the password "geheim" is created.
 func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	for i := 0; i < people; i++ {
 		p, err := NewFakePerson("de")
@@ -83,6 +80,15 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	u, err := NewUser("admin", "geheim")
+	if err != nil {
+		return err
+	}
+
+	if err := dbm.Insert(&u); err != nil {
+		return err
 	}
 
 	for i := 0; i < user; i++ {

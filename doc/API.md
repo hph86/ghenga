@@ -37,6 +37,13 @@ The body of response looks as follows:
 The token needs to be submitted in the HTTP header `X-Auth-Token` for all
 requests to the API.
 
+### GET /login/info
+
+This endpoint can be called with a valid authentication token in the HTTP
+header. If the token is still valid, information about the current user and the
+remaining validity period is returned. The JSON body is the same as with
+`/login/token` endpoint.
+
 ## People
 
 This endpoint manages all entries for people in the database. People can be
