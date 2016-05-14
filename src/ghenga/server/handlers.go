@@ -67,6 +67,19 @@ func RecoverHandler(env *Env, wr http.ResponseWriter, req *http.Request, h Handl
 	return h(env, wr, req)
 }
 
+// RequireAuth ensures that only requests with a valid authentication token are
+// passed to H, otherwise an error is returned.
+func RequireAuth(h HandleFunc) HandleFunc {
+	return func(env *Env, res http.ResponseWriter, req *http.Request) error {
+		_, err := findSession(env, req)
+		if err != nil {
+			return err
+		}
+
+		return h(env, res, req)
+	}
+}
+
 // Handle takes a HandleFunc and returns an http.Handler.
 func Handle(ctx context.Context, env *Env, h HandleFunc) http.Handler {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {

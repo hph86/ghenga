@@ -10,8 +10,7 @@ var testURLs = []struct {
 	method string
 	body   string
 }{
-	{"/api/login/token", "GET", ""},
-	{"/api/login/check", "GET", ""},
+	{"/api/login/info", "GET", ""},
 	{"/api/person", "GET", ""},
 	{"/api/person", "POST", `{"name": "foo"}`},
 	{"/api/person/23", "GET", ""},
@@ -45,7 +44,7 @@ func TestServerAuthentication(t *testing.T) {
 			body = []byte(test.body)
 		}
 
-		code, _ := request(t, "", test.method, srv.URL+test.path, body)
+		code, _ := request(t, token, test.method, srv.URL+test.path, body)
 		if code == http.StatusUnauthorized {
 			t.Errorf("%v %v failed with authentication", test.method, test.path)
 		}

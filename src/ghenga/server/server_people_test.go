@@ -119,7 +119,7 @@ func TestPersonCRUD(t *testing.T) {
 
 	p := readFixture(t, "sample_person.json")
 
-	token := ""
+	token := login(t, srv, "admin", "geheim")
 
 	status, body := request(t, token, "POST", srv.URL+"/api/person", p)
 	if status != 201 {
@@ -161,7 +161,7 @@ func TestPersonList(t *testing.T) {
 	srv, cleanup := TestServer(t)
 	defer cleanup()
 
-	token := ""
+	token := login(t, srv, "admin", "geheim")
 
 	status, body := request(t, token, "GET", srv.URL+"/api/person", nil)
 	if status != 200 {
@@ -187,7 +187,7 @@ func TestInvalidPerson(t *testing.T) {
 	srv, cleanup := TestServer(t)
 	defer cleanup()
 
-	token := ""
+	token := login(t, srv, "admin", "geheim")
 
 	for _, test := range invalidPersonTests {
 		status, body := request(t, token, "POST", srv.URL+"/api/person", []byte(test))
