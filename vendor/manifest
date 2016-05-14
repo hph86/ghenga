@@ -80,6 +80,13 @@
 			"revision": "1e61df8d9ea476e2e1504cd9a32b40280c7c6c7e",
 			"branch": "master",
 			"path": "/scrypt"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "30be488e9140ebb7fac3b2995ac5a4b4d5e715ed",
+			"branch": "master",
+			"path": "/context"
 		}
 	]
 }
