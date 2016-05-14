@@ -1,11 +1,14 @@
 package server
 
-import "github.com/gorilla/mux"
+import (
+	"github.com/gorilla/mux"
+	"golang.org/x/net/context"
+)
 
 // NewRouter returns a new router with the complete ghenga API already attached.
-func NewRouter(env *Env) *mux.Router {
+func NewRouter(ctx context.Context, env *Env) *mux.Router {
 	router := mux.NewRouter()
-	PeopleHandler(env, router)
-	LoginHandler(env, router)
+	PeopleHandler(ctx, env, router)
+	LoginHandler(ctx, env, router)
 	return router
 }

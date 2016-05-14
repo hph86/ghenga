@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/net/context"
+
 	"github.com/gorilla/mux"
 )
 
@@ -48,9 +50,11 @@ type TestSrv struct {
 func TestServer(t *testing.T) (srv *TestSrv, cleanup func()) {
 	env, envcleanup := TestEnv(t)
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	r := mux.NewRouter()
-	PeopleHandler(env, r)
-	LoginHandler(env, r)
+	PeopleHandler(ctx, env, r)
+	LoginHandler(ctx, env, r)
 
 	srv = &TestSrv{
 		Server: httptest.NewServer(r),
@@ -60,5 +64,6 @@ func TestServer(t *testing.T) (srv *TestSrv, cleanup func()) {
 	return srv, func() {
 		srv.Close()
 		envcleanup()
+		cancel()
 	}
 }

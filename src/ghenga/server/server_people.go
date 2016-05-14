@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"golang.org/x/net/context"
+
 	"github.com/gorilla/mux"
 )
 
@@ -150,10 +152,10 @@ func DeletePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 }
 
 // PeopleHandler adds routes to the for ghenga API in the given enviroment to r.
-func PeopleHandler(env *Env, r *mux.Router) {
-	r.Handle("/api/person", Handler{H: ListPeople, Env: env}).Methods("GET")
-	r.Handle("/api/person", Handler{H: CreatePerson, Env: env}).Methods("POST")
-	r.Handle("/api/person/{id}", Handler{H: ShowPerson, Env: env}).Methods("GET")
-	r.Handle("/api/person/{id}", Handler{H: UpdatePerson, Env: env}).Methods("PUT")
-	r.Handle("/api/person/{id}", Handler{H: DeletePerson, Env: env}).Methods("DELETE")
+func PeopleHandler(ctx context.Context, env *Env, r *mux.Router) {
+	r.Handle("/api/person", Handle(ctx, env, ListPeople)).Methods("GET")
+	r.Handle("/api/person", Handle(ctx, env, CreatePerson)).Methods("POST")
+	r.Handle("/api/person/{id}", Handle(ctx, env, ShowPerson)).Methods("GET")
+	r.Handle("/api/person/{id}", Handle(ctx, env, UpdatePerson)).Methods("PUT")
+	r.Handle("/api/person/{id}", Handle(ctx, env, DeletePerson)).Methods("DELETE")
 }

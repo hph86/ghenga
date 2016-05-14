@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"golang.org/x/net/context"
+
 	"github.com/gorilla/mux"
 )
 
@@ -108,8 +110,8 @@ func Invalidate(env *Env, res http.ResponseWriter, req *http.Request) error {
 }
 
 // LoginHandler adds routes to the for ghenga API in the given enviroment to r.
-func LoginHandler(env *Env, r *mux.Router) {
-	r.Handle("/api/login/token", Handler{H: Login, Env: env}).Methods("GET")
-	r.Handle("/api/login/info", Handler{H: Info, Env: env}).Methods("GET")
-	r.Handle("/api/login/invalidate", Handler{H: Invalidate, Env: env}).Methods("GET")
+func LoginHandler(ctx context.Context, env *Env, r *mux.Router) {
+	r.Handle("/api/login/token", Handle(ctx, env, Login)).Methods("GET")
+	r.Handle("/api/login/info", Handle(ctx, env, Info)).Methods("GET")
+	r.Handle("/api/login/invalidate", Handle(ctx, env, Invalidate)).Methods("GET")
 }

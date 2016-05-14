@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"golang.org/x/net/context"
+
 	"github.com/gorilla/handlers"
 )
 
@@ -36,6 +38,9 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 	}
 	defer CleanupErr(&err, cleanup)
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	log.Printf("starting server at %v:%d", opts.Addr, opts.Port)
 
 	env := &server.Env{
@@ -46,7 +51,7 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 		},
 	}
 
-	router := server.NewRouter(env)
+	router := server.NewRouter(ctx, env)
 
 	// server static files on the root path
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(opts.Public)))
