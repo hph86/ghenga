@@ -50,7 +50,7 @@ type TestSrv struct {
 func TestServer(t *testing.T) (srv *TestSrv, cleanup func()) {
 	env, envcleanup := TestEnv(t)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.TODO())
 
 	r := mux.NewRouter()
 	PeopleHandler(ctx, env, r)
