@@ -29,6 +29,7 @@ The body of response looks as follows:
 
 ```json
 {
+  "user": "foobar",
   "token": "8890bb0467cfe0bde7ec8554b6b01e4174ee6217ed540fc811ef4bfac80c082e",
   "valid_for": 7200,
 }
@@ -46,6 +47,12 @@ This endpoint can be called with a valid authentication token in the HTTP
 header. If the token is still valid, information about the current user and the
 remaining validity period is returned. The JSON body is the same as with
 `/login/token` endpoint.
+
+### GET /login/invalidate
+
+Performing a GET request to this endpoint invalidates the session token sent in
+the `X-Auth-Token` HTTP header. A response code of 200 (OK) and an empty body
+is returned on success.
 
 ## People
 

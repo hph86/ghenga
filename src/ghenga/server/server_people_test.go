@@ -42,7 +42,7 @@ func readBody(t *testing.T, res *http.Response) (int, []byte) {
 	return res.StatusCode, responseBody
 }
 
-func request(t *testing.T, method, url string, body []byte) (int, []byte) {
+func request(t *testing.T, token, method, url string, body []byte) (int, []byte) {
 	var rd io.Reader
 	if body != nil {
 		rd = bytes.NewReader(body)
@@ -51,6 +51,10 @@ func request(t *testing.T, method, url string, body []byte) (int, []byte) {
 	req, err := http.NewRequest(method, url, rd)
 	if err != nil {
 		t.Fatalf("NewRequest() %v", err)
+	}
+
+	if token != "" {
+		req.Header.Add(authHeaderName, token)
 	}
 
 	if body != nil {
@@ -98,8 +102,8 @@ func verifyPerson(t *testing.T, name string, data []byte) Person {
 	return person
 }
 
-func deletePerson(t *testing.T, url string, id int) {
-	status, body := request(t, "DELETE", fmt.Sprintf("%s/api/person/%d", url, id), nil)
+func deletePerson(t *testing.T, token, url string, id int) {
+	status, body := request(t, token, "DELETE", fmt.Sprintf("%s/api/person/%d", url, id), nil)
 	if status != 200 {
 		t.Fatalf("reading person again yielded unexpected status %d", status)
 	}
@@ -115,14 +119,16 @@ func TestPersonCRUD(t *testing.T) {
 
 	p := readFixture(t, "sample_person.json")
 
-	status, body := request(t, "POST", srv.URL+"/api/person", p)
+	token := ""
+
+	status, body := request(t, token, "POST", srv.URL+"/api/person", p)
 	if status != 201 {
 		t.Fatalf("invalid status code, want 201, got %v, body:\n  %s", status, string(p))
 	}
 
 	person := verifyPerson(t, "Nicolai Person", body)
 
-	status, body = request(t, "GET", fmt.Sprintf("%s/api/person/%d", srv.URL, person.ID), nil)
+	status, body = request(t, token, "GET", fmt.Sprintf("%s/api/person/%d", srv.URL, person.ID), nil)
 	if status != 200 {
 		t.Fatalf("reading person again yielded unexpected status %d", status)
 	}
@@ -134,28 +140,30 @@ func TestPersonCRUD(t *testing.T) {
 
 	t.Logf("person: %v", person)
 
-	status, body = request(t, "PUT", fmt.Sprintf("%s/api/person/%d", srv.URL, person.ID), marshal(t, person))
+	status, body = request(t, token, "PUT", fmt.Sprintf("%s/api/person/%d", srv.URL, person.ID), marshal(t, person))
 	if status != 200 {
 		t.Fatalf("updating person, invalid status %d", status)
 	}
 
 	verifyPerson(t, person.Name, body)
 
-	status, body = request(t, "GET", fmt.Sprintf("%s/api/person/%d", srv.URL, person.ID), nil)
+	status, body = request(t, token, "GET", fmt.Sprintf("%s/api/person/%d", srv.URL, person.ID), nil)
 	if status != 200 {
 		t.Fatalf("reading person again yielded unexpected status %d", status)
 	}
 
 	verifyPerson(t, person.Name, body)
 
-	deletePerson(t, srv.URL, person.ID)
+	deletePerson(t, token, srv.URL, person.ID)
 }
 
 func TestPersonList(t *testing.T) {
 	srv, cleanup := TestServer(t)
 	defer cleanup()
 
-	status, body := request(t, "GET", srv.URL+"/api/person", nil)
+	token := ""
+
+	status, body := request(t, token, "GET", srv.URL+"/api/person", nil)
 	if status != 200 {
 		t.Fatalf("reading list of persons failed with invalid status: want 200, got %d", status)
 	}
@@ -179,8 +187,10 @@ func TestInvalidPerson(t *testing.T) {
 	srv, cleanup := TestServer(t)
 	defer cleanup()
 
+	token := ""
+
 	for _, test := range invalidPersonTests {
-		status, body := request(t, "POST", srv.URL+"/api/person", []byte(test))
+		status, body := request(t, token, "POST", srv.URL+"/api/person", []byte(test))
 		if status != 400 {
 			t.Fatalf("status code for invalid person not found, want 400, got %v, body:\n  %s", status, body)
 		}

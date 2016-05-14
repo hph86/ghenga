@@ -72,3 +72,13 @@ func ExpireSessions(db *modl.DbMap) (sessionsRemoved int64, err error) {
 	res := db.Dbx.MustExec("DELETE FROM sessions WHERE valid_until < datetime('now', 'localtime')")
 	return res.RowsAffected()
 }
+
+// Invalidate removes the session from the database.
+func (s *Session) Invalidate(db *modl.DbMap) error {
+	_, err := db.Delete(s)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -63,7 +63,7 @@ func configDBMap(db *sql.DB) (*modl.DbMap, error) {
 	dbmap.AddTableWithName(Person{}, "people").SetKeys(true, "id")
 	dbmap.AddTableWithName(PhoneNumber{}, "phone_numbers").SetKeys(true, "id")
 	dbmap.AddTableWithName(User{}, "users").SetKeys(true, "id")
-	dbmap.AddTableWithName(Session{}, "sessions")
+	dbmap.AddTableWithName(Session{}, "sessions").SetKeys(false, "token")
 
 	return dbmap, migrateUp(db)
 }

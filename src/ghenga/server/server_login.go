@@ -12,6 +12,7 @@ import (
 
 // LoginResponseJSON is the structure returned by a login request.
 type LoginResponseJSON struct {
+	User     string `json:"user"`
 	Token    string `json:"token"`
 	ValidFor uint   `json:"valid_for"`
 }
@@ -46,6 +47,7 @@ func Login(env *Env, res http.ResponseWriter, req *http.Request) error {
 	}
 
 	return httpWriteJSON(res, http.StatusOK, LoginResponseJSON{
+		User:     u.Login,
 		Token:    session.Token,
 		ValidFor: uint(env.Cfg.SessionDuration / time.Second),
 	})
@@ -53,11 +55,11 @@ func Login(env *Env, res http.ResponseWriter, req *http.Request) error {
 
 const authHeaderName = "X-Auth-Token"
 
-// Check allows users to check whether a token is still valid.
-func Check(env *Env, res http.ResponseWriter, req *http.Request) error {
+// findSession returns a session for the request or an error if none is found.
+func findSession(env *Env, req *http.Request) (*db.Session, error) {
 	token := req.Header.Get(authHeaderName)
 	if token == "" {
-		return StatusError{
+		return nil, StatusError{
 			Code: http.StatusUnauthorized,
 			Err:  errors.New("invalid session token"),
 		}
@@ -69,7 +71,7 @@ func Check(env *Env, res http.ResponseWriter, req *http.Request) error {
 	}
 
 	if err != nil || session.ValidUntil.Before(time.Now()) {
-		return StatusError{
+		return nil, StatusError{
 			Code: http.StatusUnauthorized,
 			Err:  errors.New("invalid session token"),
 		}
@@ -77,14 +79,37 @@ func Check(env *Env, res http.ResponseWriter, req *http.Request) error {
 
 	log.Printf("found session for token %v: %v", token, session)
 
+	return session, nil
+}
+
+// Info allows users to check whether a token is still valid and find the
+// current username.
+func Info(env *Env, res http.ResponseWriter, req *http.Request) error {
+	session, err := findSession(env, req)
+	if err != nil {
+		return err
+	}
+
 	return httpWriteJSON(res, http.StatusOK, LoginResponseJSON{
+		User:     session.User,
 		Token:    session.Token,
 		ValidFor: uint(session.ValidUntil.Sub(time.Now()) / time.Second),
 	})
 }
 
+// Invalidate deletes a valid session token.
+func Invalidate(env *Env, res http.ResponseWriter, req *http.Request) error {
+	session, err := findSession(env, req)
+	if err != nil {
+		return err
+	}
+
+	return session.Invalidate(env.DbMap)
+}
+
 // LoginHandler adds routes to the for ghenga API in the given enviroment to r.
 func LoginHandler(env *Env, r *mux.Router) {
 	r.Handle("/api/login/token", Handler{H: Login, Env: env}).Methods("GET")
-	r.Handle("/api/login/check", Handler{H: Check, Env: env}).Methods("GET")
+	r.Handle("/api/login/info", Handler{H: Info, Env: env}).Methods("GET")
+	r.Handle("/api/login/invalidate", Handler{H: Invalidate, Env: env}).Methods("GET")
 }

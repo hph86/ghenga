@@ -85,7 +85,7 @@ func TestLogin(t *testing.T) {
 	}
 }
 
-func TestCheck(t *testing.T) {
+func TestInfo(t *testing.T) {
 	srv, cleanup := TestServer(t)
 	defer cleanup()
 
@@ -94,7 +94,7 @@ func TestCheck(t *testing.T) {
 		t.Fatalf("invalid response for valid login request: token %v", token)
 	}
 
-	req, err := http.NewRequest("GET", srv.URL+"/api/login/check", nil)
+	req, err := http.NewRequest("GET", srv.URL+"/api/login/info", nil)
 	if err != nil {
 		t.Fatalf("NewRequest() %v", err)
 	}
