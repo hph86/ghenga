@@ -4,10 +4,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
-	"testing"
 
 	// import the sqlite driver
 	_ "github.com/mattn/go-sqlite3"
@@ -76,30 +74,4 @@ func Init(dbfile string) (*modl.DbMap, error) {
 	}
 
 	return configDBMap(db)
-}
-
-// TestDB returns an in-memory database suitable for testing. If the
-// environment variable GHENGA_TEST_DB is set to a file name, this is used
-// instead.
-func TestDB(t *testing.T) (*modl.DbMap, func()) {
-	filename := os.Getenv("GHENGA_TEST_DB")
-	if filename == "" {
-		filename = ":memory:"
-	}
-
-	dbmap, err := Init(filename)
-	if err != nil {
-		t.Fatalf("unable to initialize db: %v", err)
-	}
-
-	if os.Getenv("DBTRACE") != "" {
-		dbmap.TraceOn("DB: ", log.New(os.Stderr, "", log.LstdFlags))
-	}
-
-	return dbmap, func() {
-		err := dbmap.Db.Close()
-		if err != nil {
-			t.Fatalf("db.Close(): %v", err)
-		}
-	}
 }
