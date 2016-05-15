@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"ghenga/db"
 	"ghenga/server"
 	"log"
 	"net/http"
@@ -31,6 +32,31 @@ func init() {
 
 const sessionDuration = 24 * time.Hour
 
+func expireSessions(ctx context.Context, env *server.Env, d time.Duration) {
+	t := time.NewTicker(d)
+	defer t.Stop()
+
+	log.Printf("expiring sessions every %v", d)
+
+	for {
+		select {
+		case <-t.C:
+			n, err := db.ExpireSessions(env.DbMap)
+			if err != nil {
+				log.Printf("ExpireSessions returned error %v", err)
+				continue
+			}
+			if n > 0 {
+				log.Printf("expired %v sessions", n)
+			}
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+const sessionExpireInterval = 5 * time.Minute
+
 func (opts *cmdServe) Execute(args []string) (err error) {
 	dbmap, cleanup, e := OpenDB()
 	if e != nil {
@@ -50,6 +76,8 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 			SessionDuration: sessionDuration,
 		},
 	}
+
+	go expireSessions(ctx, env, sessionExpireInterval)
 
 	router := server.NewRouter(ctx, env)
 
