@@ -239,7 +239,9 @@ func TestPersonDeletePhoneNumber(t *testing.T) {
 	defer cleanup()
 
 	p := findPerson(t, db, 14)
-	p.PhoneNumbers = p.PhoneNumbers[1:]
+	if len(p.PhoneNumbers) > 0 {
+		p.PhoneNumbers = p.PhoneNumbers[1:]
+	}
 
 	updatePerson(t, db, p)
 

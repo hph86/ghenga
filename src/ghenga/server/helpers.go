@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"golang.org/x/net/context"
-
-	"github.com/gorilla/mux"
 )
 
 // cleanupErr runs fn and sets err to the returned error if err is nil.
@@ -52,12 +50,8 @@ func TestServer(t *testing.T) (srv *TestSrv, cleanup func()) {
 
 	ctx, cancel := context.WithCancel(context.TODO())
 
-	r := mux.NewRouter()
-	PeopleHandler(ctx, env, r)
-	LoginHandler(ctx, env, r)
-
 	srv = &TestSrv{
-		Server: httptest.NewServer(r),
+		Server: httptest.NewServer(NewRouter(ctx, env)),
 		Env:    env,
 	}
 

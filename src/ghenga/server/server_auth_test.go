@@ -14,7 +14,8 @@ var testURLs = []struct {
 	{"/api/person", "GET", ""},
 	{"/api/person", "POST", `{"name": "foo"}`},
 	{"/api/person/23", "GET", ""},
-	{"/api/person/23", "PUT", `{"name": "foo"}`},
+	{"/api/person/23", "PUT", `{"name": "foo", "version":1}`},
+	{"/api/search/person?query=", "GET", ""},
 }
 
 func TestServerAuthentication(t *testing.T) {
