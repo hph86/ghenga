@@ -29,11 +29,13 @@ func ListPeople(ctx context.Context, env *Env, res http.ResponseWriter, req *htt
 
 // ShowPerson returns a Person record.
 func ShowPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
+	session, _ := db.SessionFromContext(ctx)
+
 	id, err := strconv.Atoi(mux.Vars(req)["id"])
 	if err != nil {
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
-	log.Printf("requested person %v", id)
+	log.Printf("requested person %v by %v", id, session.User)
 
 	var person db.Person
 	err = env.DbMap.SelectOne(&person, "select * from people where id = ?", id)
