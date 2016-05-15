@@ -15,7 +15,7 @@ import (
 )
 
 // ListPeople handles listing person records.
-func ListPeople(env *Env, res http.ResponseWriter, req *http.Request) error {
+func ListPeople(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
 	var people []*db.Person
 	err := env.DbMap.Select(&people, "select * from people")
 	if err != nil {
@@ -28,7 +28,7 @@ func ListPeople(env *Env, res http.ResponseWriter, req *http.Request) error {
 }
 
 // ShowPerson returns a Person record.
-func ShowPerson(env *Env, res http.ResponseWriter, req *http.Request) error {
+func ShowPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
 	id, err := strconv.Atoi(mux.Vars(req)["id"])
 	if err != nil {
 		return StatusError{Code: http.StatusBadRequest, Err: err}
@@ -48,7 +48,7 @@ func ShowPerson(env *Env, res http.ResponseWriter, req *http.Request) error {
 }
 
 // CreatePerson inserts a new person into the database. The request body must be valid JSON.
-func CreatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
+func CreatePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
 	defer cleanupErr(&err, req.Body.Close)
 
 	var p db.Person
@@ -76,7 +76,7 @@ func CreatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 }
 
 // UpdatePerson changes an existing person record. The request body must be valid JSON.
-func UpdatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
+func UpdatePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
 	defer cleanupErr(&err, req.Body.Close)
 
 	id, err := strconv.Atoi(mux.Vars(req)["id"])
@@ -128,7 +128,7 @@ func UpdatePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err erro
 }
 
 // DeletePerson removes a person from the database.
-func DeletePerson(env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
+func DeletePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
 	id, err := strconv.Atoi(mux.Vars(req)["id"])
 	if err != nil {
 		return StatusError{Code: http.StatusBadRequest, Err: err}

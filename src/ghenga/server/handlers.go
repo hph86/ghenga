@@ -21,7 +21,7 @@ type Env struct {
 
 // HandleFunc is a function similar to http.HandleFunc, but extended by an
 // explicit environment parameter. It may return an error.
-type HandleFunc func(*Env, http.ResponseWriter, *http.Request) error
+type HandleFunc func(context.Context, *Env, http.ResponseWriter, *http.Request) error
 
 // httpWriteJSON encodes the given structures as JSON and writes them to the
 // ResponseWriter.
@@ -43,7 +43,7 @@ type jsonError struct {
 }
 
 // RecoverHandler recovers gracefully from panics that occur when running h.
-func RecoverHandler(env *Env, wr http.ResponseWriter, req *http.Request, h HandleFunc) (err error) {
+func RecoverHandler(ctx context.Context, env *Env, wr http.ResponseWriter, req *http.Request, h HandleFunc) (err error) {
 	defer func() {
 		// catch panic that may have occurred while running the handler
 		if r := recover(); r != nil {
@@ -64,26 +64,26 @@ func RecoverHandler(env *Env, wr http.ResponseWriter, req *http.Request, h Handl
 		}
 	}()
 
-	return h(env, wr, req)
+	return h(ctx, env, wr, req)
 }
 
 // RequireAuth ensures that only requests with a valid authentication token are
 // passed to H, otherwise an error is returned.
 func RequireAuth(h HandleFunc) HandleFunc {
-	return func(env *Env, res http.ResponseWriter, req *http.Request) error {
+	return func(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
 		_, err := findSession(env, req)
 		if err != nil {
 			return err
 		}
 
-		return h(env, res, req)
+		return h(ctx, env, res, req)
 	}
 }
 
 // Handle takes a HandleFunc and returns an http.Handler.
 func Handle(ctx context.Context, env *Env, h HandleFunc) http.Handler {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
-		err := RecoverHandler(env, wr, req, h)
+		err := RecoverHandler(ctx, env, wr, req, h)
 		if err != nil {
 			switch e := err.(type) {
 			case Error:

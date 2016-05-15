@@ -20,7 +20,7 @@ type LoginResponseJSON struct {
 }
 
 // Login allows users to log in and returns a token.
-func Login(env *Env, res http.ResponseWriter, req *http.Request) error {
+func Login(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
 	username, password, ok := req.BasicAuth()
 	if !ok {
 		return StatusError{
@@ -86,7 +86,7 @@ func findSession(env *Env, req *http.Request) (*db.Session, error) {
 
 // Info allows users to check whether a token is still valid and find the
 // current username.
-func Info(env *Env, res http.ResponseWriter, req *http.Request) error {
+func Info(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
 	session, err := findSession(env, req)
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func Info(env *Env, res http.ResponseWriter, req *http.Request) error {
 }
 
 // Invalidate deletes a valid session token.
-func Invalidate(env *Env, res http.ResponseWriter, req *http.Request) error {
+func Invalidate(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
 	session, err := findSession(env, req)
 	if err != nil {
 		return err
