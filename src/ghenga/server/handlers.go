@@ -5,6 +5,7 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"ghenga/db"
 	"log"
 	"net/http"
 
@@ -71,10 +72,12 @@ func RecoverHandler(ctx context.Context, env *Env, wr http.ResponseWriter, req *
 // passed to H, otherwise an error is returned.
 func RequireAuth(h HandleFunc) HandleFunc {
 	return func(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
-		_, err := findSession(env, req)
+		session, err := findSession(env, req)
 		if err != nil {
 			return err
 		}
+
+		ctx = db.NewContextWithSession(ctx, session)
 
 		return h(ctx, env, res, req)
 	}
