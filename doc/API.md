@@ -83,6 +83,17 @@ here will not be modified.
 
 Removes the person with the given ID from the database.
 
+## Search
+
+Searching within the data stored by ghenga can be achieved with the following
+API endpoints.
+
+### GET /search/person?query=X
+
+This endpoint searches within all people in the database for the string `X`,
+where the string may be contained in any field. The response is an array of all
+matching people.
+
 ## Users
 
 This endpoint manages ghenga users.

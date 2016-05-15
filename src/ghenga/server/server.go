@@ -10,5 +10,6 @@ func NewRouter(ctx context.Context, env *Env) *mux.Router {
 	router := mux.NewRouter()
 	PeopleHandler(ctx, env, router)
 	LoginHandler(ctx, env, router)
+	SearchHandler(ctx, env, router)
 	return router
 }
