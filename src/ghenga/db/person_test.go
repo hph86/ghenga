@@ -53,6 +53,26 @@ var testPersons = []struct {
 			Version:      1,
 		},
 	},
+	{
+		name: "testperson3",
+		p: Person{
+			Name:         "Mario Drees",
+			EmailAddress: "bela_freigang@herweg.com",
+			PhoneNumbers: []PhoneNumber{
+				{Type: "wörk", Number: "1234123 3074101"},
+			},
+
+			Street:     "Lower High St. 23",
+			Country:    "GB",
+			City:       "London",
+			State:      "California",
+			PostalCode: "1234",
+
+			ChangedAt: parseTime("2016-04-24T10:30:07+00:00"),
+			CreatedAt: parseTime("2016-04-24T10:30:07+00:00"),
+			Version:   5,
+		},
+	},
 }
 
 func TestPersonInsertSelect(t *testing.T) {
@@ -127,6 +147,13 @@ func marshal(t *testing.T, item interface{}) []byte {
 	return buf
 }
 
+func unmarshal(t *testing.T, buf []byte, item interface{}) {
+	err := json.Unmarshal(buf, item)
+	if err != nil {
+		t.Fatalf("json.Unmarsha(%s): %v", buf, err)
+	}
+}
+
 func TestPersonMarshal(t *testing.T) {
 	for i, test := range testPersons {
 		buf := marshal(t, test.p)
@@ -142,9 +169,30 @@ func TestPersonMarshal(t *testing.T) {
 		expected, err := ioutil.ReadFile(golden)
 		if err != nil {
 			t.Errorf("test %d: unable to read golden file %v", i, golden)
+			continue
 		}
 		if !bytes.Equal(buf, expected) {
-			t.Errorf("test %d (%v) wrong JSON returned:\n  want: %s\n   got: %s", i, test.name, expected, buf)
+			t.Errorf("test %d (%v) wrong JSON returned:\nwant:\n%s\ngot:\n%s", i, test.name, expected, buf)
+		}
+	}
+}
+
+func TestPersonUnmarshal(t *testing.T) {
+	for i, test := range testPersons {
+		golden := filepath.Join("testdata", "TestPersonMarshal_"+test.name+".golden")
+		buf, err := ioutil.ReadFile(golden)
+		if err != nil {
+			t.Errorf("test %d: unable to read golden file %v", i, golden)
+			continue
+		}
+
+		var p Person
+		unmarshal(t, buf, &p)
+
+		buf2 := marshal(t, p)
+
+		if !bytes.Equal(buf, buf2) {
+			t.Errorf("test %d (%v) wrong JSON returned:\nwant:\n%s\ngot:\n%s", i, test.name, buf, buf2)
 		}
 	}
 }

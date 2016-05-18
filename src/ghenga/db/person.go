@@ -111,10 +111,64 @@ func (p Person) MarshalJSON() ([]byte, error) {
 	return json.Marshal(jp)
 }
 
+// UnmarshalJSON returns a person from JSON.
+func (p *Person) UnmarshalJSON(data []byte) error {
+	var jp PersonJSON
+
+	err := json.Unmarshal(data, &jp)
+	if err != nil {
+		return err
+	}
+
+	createdAt, err := time.Parse(timeLayout, jp.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	changedAt, err := time.Parse(timeLayout, jp.ChangedAt)
+	if err != nil {
+		return err
+	}
+
+	*p = Person{
+		ID:           jp.ID,
+		Name:         jp.Name,
+		Title:        jp.Title,
+		Department:   jp.Department,
+		EmailAddress: jp.EmailAddress,
+
+		Street:     jp.Address.Street,
+		PostalCode: jp.Address.PostalCode,
+		State:      jp.Address.State,
+		City:       jp.Address.City,
+		Country:    jp.Address.Country,
+
+		Comment: jp.Comment,
+
+		CreatedAt: createdAt,
+		ChangedAt: changedAt,
+		Version:   jp.Version,
+	}
+
+	for _, num := range jp.PhoneNumbers {
+		n := PhoneNumber{
+			Number: num.Number,
+			Type:   num.Type,
+		}
+		p.PhoneNumbers = append(p.PhoneNumbers, n)
+	}
+
+	return nil
+}
+
 // Validate checks if p is valid and returns an error if not.
 func (p *Person) Validate() error {
 	if p.Name == "" {
 		return errors.New("name is empty")
+	}
+
+	if p.CreatedAt.IsZero() || p.ChangedAt.IsZero() {
+		return errors.New("invalid timestamps")
 	}
 
 	return nil
