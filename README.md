@@ -40,3 +40,10 @@ cd ghenga
 gb build
 bin/ghenga serve --public ghenga-ui/app
 ```
+
+The database can be filled with (real-looking) fake data, including the user
+accounts `admin` and `user` with the password `geheim`:
+
+```shell
+bin/ghenga fakedata
+```
