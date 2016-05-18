@@ -32,6 +32,7 @@ The body of response looks as follows:
   "user": "foobar",
   "token": "8890bb0467cfe0bde7ec8554b6b01e4174ee6217ed540fc811ef4bfac80c082e",
   "valid_for": 7200,
+  "admin": false,
 }
 ```
 

@@ -17,6 +17,7 @@ type LoginResponseJSON struct {
 	User     string `json:"user"`
 	Token    string `json:"token"`
 	ValidFor uint   `json:"valid_for"`
+	Admin    bool   `json:"admin"`
 }
 
 // Login allows users to log in and returns a token.
@@ -52,6 +53,7 @@ func Login(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Req
 		User:     u.Login,
 		Token:    session.Token,
 		ValidFor: uint(env.Cfg.SessionDuration / time.Second),
+		Admin:    u.Admin,
 	})
 }
 
@@ -92,10 +94,16 @@ func Info(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Requ
 		return err
 	}
 
+	u, err := db.FindUser(env.DbMap, session.User)
+	if err != nil {
+		return err
+	}
+
 	return httpWriteJSON(res, http.StatusOK, LoginResponseJSON{
 		User:     session.User,
 		Token:    session.Token,
 		ValidFor: uint(session.ValidUntil.Sub(time.Now()) / time.Second),
+		Admin:    u.Admin,
 	})
 }
 
