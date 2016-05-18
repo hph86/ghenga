@@ -85,12 +85,16 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 		}
 	}
 
-	for _, username := range []string{"admin", "user"} {
-		u, err := NewUser(username, "geheim")
+	for _, s := range []struct {
+		name  string
+		admin bool
+	}{{"admin", true}, {"user", false}} {
+		u, err := NewUser(s.name, "geheim")
 		if err != nil {
 			return err
 		}
 
+		u.Admin = s.admin
 		if err := dbm.Insert(u); err != nil {
 			return err
 		}

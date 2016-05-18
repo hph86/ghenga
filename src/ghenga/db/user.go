@@ -13,6 +13,7 @@ type User struct {
 	ID           int64
 	Login        string
 	PasswordHash string
+	Admin        bool
 
 	ChangedAt time.Time
 	CreatedAt time.Time
@@ -32,6 +33,17 @@ func NewUser(login, password string) (*User, error) {
 		CreatedAt:    time.Now(),
 		ChangedAt:    time.Now(),
 	}, nil
+}
+
+// NewAdminUser returns a new User with the admin flag set.
+func NewAdminUser(login, password string) (*User, error) {
+	u, err := NewUser(login, password)
+	if err != nil {
+		return nil, err
+	}
+
+	u.Admin = true
+	return u, nil
 }
 
 // CheckPassword returns true iff the password matches the user's password hash.
