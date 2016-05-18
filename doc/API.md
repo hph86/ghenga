@@ -96,11 +96,12 @@ matching people.
 
 ## Users
 
-This endpoint manages ghenga users.
+This endpoint manages ghenga users. All requests require the `admin` flag in
+the database to be set.
 
 ### GET /user
 
-Returns a list of all users known to ghenga.
+Returns a list of all users.
 
 ### POST /user
 

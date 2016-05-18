@@ -138,8 +138,8 @@ as follows:
 ```json
 {
   "id": 666,
-  "username": "will",
-  "name": "Will Wheaton",
+  "login": "will",
+  "admin": true,
   "version": 1,
   "changed_at": "2016-04-24T10:30:07+00:00",
   "created_at": "2016-04-24T10:30:07+00:00"
