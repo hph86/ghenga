@@ -36,17 +36,17 @@ type UserJSON struct {
 
 // NewUser returns a new User initialized with the given password.
 func NewUser(login, password string) (*User, error) {
-	hash, err := scrypt.GenerateFromPassword([]byte(password), scrypt.DefaultParams)
-	if err != nil {
+	u := &User{
+		Login:     login,
+		CreatedAt: time.Now(),
+		ChangedAt: time.Now(),
+	}
+
+	if err := u.UpdatePasswordHash(password); err != nil {
 		return nil, err
 	}
 
-	return &User{
-		Login:        login,
-		PasswordHash: string(hash),
-		CreatedAt:    time.Now(),
-		ChangedAt:    time.Now(),
-	}, nil
+	return u, nil
 }
 
 // NewAdminUser returns a new User with the admin flag set.
@@ -64,6 +64,17 @@ func NewAdminUser(login, password string) (*User, error) {
 func (u User) CheckPassword(password string) bool {
 	err := scrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 	return err == nil
+}
+
+// UpdatePasswordHash updates the password hash for u.
+func (u *User) UpdatePasswordHash(password string) error {
+	hash, err := scrypt.GenerateFromPassword([]byte(password), scrypt.DefaultParams)
+	if err != nil {
+		return err
+	}
+
+	u.PasswordHash = string(hash)
+	return nil
 }
 
 func (u User) String() string {
@@ -138,6 +149,16 @@ func (u User) Validate() error {
 	}
 
 	return nil
+}
+
+// Update updates some fields from other.
+func (u *User) Update(other UserJSON) {
+	u.Login = other.Login
+	u.Admin = other.Admin
+
+	if other.Password != "" {
+		u.UpdatePasswordHash(other.Password)
+	}
 }
 
 // FindUser searches the database for a user based on their login name.

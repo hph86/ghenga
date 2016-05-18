@@ -83,6 +83,33 @@ func RequireAuth(h HandleFunc) HandleFunc {
 	}
 }
 
+// RequireAdmin ensures that only authenticated requests from a user which has
+// the admin flag set are passed to H, otherwise an error is returned.
+func RequireAdmin(h HandleFunc) HandleFunc {
+	return func(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
+		session, err := findSession(env, req)
+		if err != nil {
+			return err
+		}
+
+		u, err := db.FindUser(env.DbMap, session.User)
+		if err != nil {
+			return err
+		}
+
+		if !u.Admin {
+			return StatusError{
+				Code: http.StatusForbidden,
+				Err:  errors.New("user is not admin"),
+			}
+		}
+
+		ctx = db.NewContextWithSession(ctx, session)
+
+		return h(ctx, env, res, req)
+	}
+}
+
 // Handle takes a HandleFunc and returns an http.Handler.
 func Handle(ctx context.Context, env *Env, h HandleFunc) http.Handler {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {

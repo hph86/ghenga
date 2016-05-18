@@ -29,13 +29,10 @@ func ListPeople(ctx context.Context, env *Env, res http.ResponseWriter, req *htt
 
 // ShowPerson returns a Person record.
 func ShowPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
-	session, _ := db.SessionFromContext(ctx)
-
 	id, err := strconv.Atoi(mux.Vars(req)["id"])
 	if err != nil {
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
-	log.Printf("requested person %v by %v", id, session.User)
 
 	var person db.Person
 	err = env.DbMap.SelectOne(&person, "select * from people where id = ?", id)
@@ -53,11 +50,14 @@ func ShowPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *htt
 func CreatePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *http.Request) (err error) {
 	defer cleanupErr(&err, req.Body.Close)
 
-	var p db.Person
+	var jp db.PersonJSON
 	dec := json.NewDecoder(req.Body)
-	if err = dec.Decode(&p); err != nil {
+	if err = dec.Decode(&jp); err != nil {
 		return err
 	}
+
+	var p db.Person
+	p.Update(jp)
 
 	// overwrite fields we'd like to be set
 	p.CreatedAt = time.Now()
@@ -153,7 +153,7 @@ func DeletePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *ht
 	return httpWriteJSON(wr, http.StatusOK, nil)
 }
 
-// PeopleHandler adds routes to the for ghenga API in the given enviroment to r.
+// PeopleHandler adds routes for ghenga API in the given enviroment to r.
 func PeopleHandler(ctx context.Context, env *Env, r *mux.Router) {
 	r.Handle("/api/person", Handle(ctx, env, RequireAuth(ListPeople))).Methods("GET")
 	r.Handle("/api/person", Handle(ctx, env, RequireAuth(CreatePerson))).Methods("POST")
