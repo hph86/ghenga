@@ -40,8 +40,11 @@ create table users (
     password_hash text not null
 );
 
+create unique index users_login on users(login);
+
 
 -- +migrate Down
 drop table people;
 drop table phone_numbers;
+drop index users_login;
 drop table users;
