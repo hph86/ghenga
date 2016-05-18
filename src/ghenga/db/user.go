@@ -1,6 +1,8 @@
 package db
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -18,6 +20,18 @@ type User struct {
 	ChangedAt time.Time
 	CreatedAt time.Time
 	Version   int64
+}
+
+// UserJSON is the JSON representation of a User.
+type UserJSON struct {
+	ID       int64  `json:"id,omitempty"`
+	Login    string `json:"login,omitempty"`
+	Admin    bool   `json:"admin"`
+	Password string `json:"password,omitempty"`
+
+	ChangedAt string `json:"changed_at"`
+	CreatedAt string `json:"created_at"`
+	Version   int64  `json:"version"`
 }
 
 // NewUser returns a new User initialized with the given password.
@@ -54,6 +68,76 @@ func (u User) CheckPassword(password string) bool {
 
 func (u User) String() string {
 	return fmt.Sprintf("<User %v (%v)>", u.Login, u.ID)
+}
+
+// MarshalJSON returns the JSON representation of u.
+func (u User) MarshalJSON() ([]byte, error) {
+	ju := UserJSON{
+		ID:    u.ID,
+		Login: u.Login,
+		Admin: u.Admin,
+
+		ChangedAt: u.ChangedAt.Format(timeLayout),
+		CreatedAt: u.CreatedAt.Format(timeLayout),
+		Version:   u.Version,
+	}
+
+	return json.Marshal(ju)
+}
+
+// UnmarshalJSON returns a user from JSON.
+func (u *User) UnmarshalJSON(data []byte) error {
+	var ju UserJSON
+
+	err := json.Unmarshal(data, &ju)
+	if err != nil {
+		return err
+	}
+
+	hash, err := scrypt.GenerateFromPassword([]byte(ju.Password), scrypt.DefaultParams)
+	if err != nil {
+		return err
+	}
+
+	createdAt, err := time.Parse(timeLayout, ju.CreatedAt)
+	if err != nil {
+		return err
+	}
+
+	changedAt, err := time.Parse(timeLayout, ju.ChangedAt)
+	if err != nil {
+		return err
+	}
+
+	*u = User{
+		ID:           ju.ID,
+		Login:        ju.Login,
+		Admin:        ju.Admin,
+		PasswordHash: string(hash),
+
+		CreatedAt: createdAt,
+		ChangedAt: changedAt,
+		Version:   ju.Version,
+	}
+
+	return nil
+}
+
+// Validate checks whether the user record does not contain any errors.
+func (u User) Validate() error {
+	if u.Login == "" {
+		return errors.New("login must not be empty")
+	}
+
+	if u.PasswordHash == "" {
+		return errors.New("user must have a password hash")
+	}
+
+	if u.CreatedAt.IsZero() || u.ChangedAt.IsZero() {
+		return errors.New("invalid timestamps")
+	}
+
+	return nil
 }
 
 // FindUser searches the database for a user based on their login name.
