@@ -70,7 +70,8 @@ func NewFakeUser(lang string) (*User, error) {
 }
 
 // InsertFakeData will populate the db with fake (but realistic) data. Among
-// others, a user named "admin" with the password "geheim" is created.
+// others, users named "admin" and "user" with the password "geheim" are
+// created.
 func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	for i := 0; i < people; i++ {
 		p, err := NewFakePerson("de")
@@ -84,13 +85,15 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 		}
 	}
 
-	u, err := NewUser("admin", "geheim")
-	if err != nil {
-		return err
-	}
+	for _, username := range []string{"admin", "user"} {
+		u, err := NewUser(username, "geheim")
+		if err != nil {
+			return err
+		}
 
-	if err := dbm.Insert(u); err != nil {
-		return err
+		if err := dbm.Insert(u); err != nil {
+			return err
+		}
 	}
 
 	for i := 0; i < user; i++ {
