@@ -108,7 +108,8 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 
 		err = dbm.Insert(u)
 		if err != nil {
-			return err
+			// ignore errors for fake data
+			continue
 		}
 	}
 
@@ -147,7 +148,7 @@ func TestDBFilled(t *testing.T, people, user int) (*modl.DbMap, func()) {
 
 	err := InsertFakeData(db, people, user)
 	if err != nil {
-		t.Fatalf("TestFillDB(): %v", err)
+		t.Fatalf("TestDBFilled(): %v", err)
 	}
 
 	return db, cleanup
