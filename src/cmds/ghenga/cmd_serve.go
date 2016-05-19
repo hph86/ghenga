@@ -30,7 +30,7 @@ func init() {
 	}
 }
 
-const sessionDuration = 24 * time.Hour
+const sessionDuration = 12 * time.Hour
 
 func expireSessions(ctx context.Context, env *server.Env, d time.Duration) {
 	t := time.NewTicker(d)
