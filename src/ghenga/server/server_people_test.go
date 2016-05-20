@@ -72,7 +72,7 @@ func request(t *testing.T, token, method, url string, body []byte) (int, []byte)
 }
 
 func readFixture(t *testing.T, filename string) []byte {
-	p, err := ioutil.ReadFile(filepath.Join("testdata", "sample_person.json"))
+	p, err := ioutil.ReadFile(filepath.Join("testdata", filename))
 	if err != nil {
 		t.Fatalf("unable to read test fixture: %v", err)
 	}
