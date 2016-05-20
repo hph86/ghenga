@@ -30,7 +30,7 @@ func Login(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Req
 		}
 	}
 
-	log.Printf("login user %v, password %v", username, password)
+	log.Printf("login attempt for user %v", username)
 
 	u, err := db.FindUser(env.DbMap, username)
 	if err != nil {
