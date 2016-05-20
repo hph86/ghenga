@@ -136,6 +136,5 @@ code 500 (internal server error) and the following document is returned:
 ```json
 {
   "message": "Unable to connect to database",
-  "code": "DATABASE_DOWN"
 }
 ```
