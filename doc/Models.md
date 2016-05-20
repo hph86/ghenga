@@ -145,3 +145,7 @@ as follows:
   "created_at": "2016-04-24T10:30:07+00:00"
 }
 ```
+
+In addition, the field `password` can be present when creating or updating
+users. The password is then hashed an saved into the database. The password
+hash is never returned to the client.

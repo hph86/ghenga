@@ -78,7 +78,7 @@ Returns the data for the specified person.
 
 Updates the entry for the person with the specified ID. The body must contain a
 JSON document with the changed attributes. Attributes that are not specified
-here will not be modified.
+here will be cleared.
 
 ### DELETE /person/:id:
 
@@ -107,7 +107,9 @@ Returns a list of all users.
 ### POST /user
 
 Create a new user. In the body, a JSON document describing the user
-must be submitted.
+must be submitted. The password must be specified in the field `password` of
+the JSON document, it is then hashed and saved to the database. Password hashes
+are never returned to the client.
 
 ### GET /user/:id:
 
@@ -117,7 +119,11 @@ Returns the data for the specified user.
 
 Updates the entry for the user with the specified ID. The body must contain a
 JSON document with the changed attributes. Attributes that are not specified
-here will not be modified.
+here will be cleared. This excludes the password hash in the database.
+
+The password must be specified in the field `password` of the JSON document, it
+is then hashed and saved to the database. Password hashes are never returned to
+the client.
 
 # Errors
 
