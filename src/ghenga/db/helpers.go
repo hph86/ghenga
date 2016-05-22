@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/fd0/probe"
 	"github.com/jmoiron/modl"
 	"github.com/manveru/faker"
 )
@@ -14,7 +15,7 @@ import (
 func NewFakePerson(lang string) (*Person, error) {
 	f, err := faker.New(lang)
 	if err != nil {
-		return nil, err
+		return nil, probe.Trace(err, lang)
 	}
 
 	p := NewPerson(f.FirstName() + " " + f.LastName())
@@ -63,7 +64,7 @@ func NewFakePerson(lang string) (*Person, error) {
 func NewFakeUser(lang string) (*User, error) {
 	f, err := faker.New(lang)
 	if err != nil {
-		return nil, err
+		return nil, probe.Trace(err, lang)
 	}
 
 	return NewUser(f.UserName(), "geheim")
@@ -76,12 +77,12 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	for i := 0; i < people; i++ {
 		p, err := NewFakePerson("de")
 		if err != nil {
-			return err
+			return probe.Trace(err, "people", people)
 		}
 
 		err = dbm.Insert(p)
 		if err != nil {
-			return err
+			return probe.Trace(err, "user", user)
 		}
 	}
 
@@ -91,19 +92,19 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	}{{"admin", true}, {"user", false}} {
 		u, err := NewUser(s.name, "geheim")
 		if err != nil {
-			return err
+			return probe.Trace(err, s.name, "geheim")
 		}
 
 		u.Admin = s.admin
 		if err := dbm.Insert(u); err != nil {
-			return err
+			return probe.Trace(err, u)
 		}
 	}
 
 	for i := 0; i < user; i++ {
 		u, err := NewFakeUser("de")
 		if err != nil {
-			return err
+			return probe.Trace(err, "de")
 		}
 
 		err = dbm.Insert(u)

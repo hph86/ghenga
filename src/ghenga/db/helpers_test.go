@@ -3,6 +3,7 @@ package db
 import (
 	"testing"
 
+	"github.com/fd0/probe"
 	"github.com/jmoiron/modl"
 )
 
@@ -32,6 +33,10 @@ func TestInsertFakeData(t *testing.T) {
 
 	before := countPeople(t, db)
 	if err := InsertFakeData(db, 234, 5); err != nil {
+		t.Logf("err: %#v", err)
+		if e, ok := err.(probe.Error); ok {
+			t.Logf("trace: %v", e.Backtrace())
+		}
 		t.Fatalf("InsertFakeData(): %v", err)
 	}
 
