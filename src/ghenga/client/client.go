@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+
+	"github.com/fd0/probe"
 )
 
 // Client is used to communicate with the ghenga API.
@@ -48,14 +50,14 @@ func (c *Client) Login(username, password string) (token string, err error) {
 	url := c.BaseURL + "/api/login/token"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return "", err
+		return "", probe.Trace(err, username)
 	}
 
 	req.SetBasicAuth(username, password)
 
 	res, httpErr := c.C.Do(req)
 	if err != nil {
-		return "", httpErr
+		return "", probe.Trace(httpErr)
 	}
 
 	defer func() {
@@ -66,13 +68,13 @@ func (c *Client) Login(username, password string) (token string, err error) {
 	}()
 
 	if res.StatusCode != http.StatusOK {
-		return "", ParseError(res)
+		return "", probe.Trace(ParseError(res))
 	}
 
 	var lr LoginResponse
 	dec := json.NewDecoder(res.Body)
 	if err := dec.Decode(&lr); err != nil {
-		return "", err
+		return "", probe.Trace(err)
 	}
 
 	return lr.Token, nil
