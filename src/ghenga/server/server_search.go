@@ -2,7 +2,6 @@ package server
 
 import (
 	"ghenga/db"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -13,7 +12,7 @@ import (
 func SearchPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
 	query := req.URL.Query().Get("query")
 
-	log.Printf("listing people that match %v", query)
+	env.Debugf("listing people that match %v", query)
 
 	people, err := db.FuzzyFindPersons(env.DbMap, query)
 	if err != nil {

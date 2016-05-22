@@ -6,19 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"ghenga/db"
-	"log"
 	"net/http"
 
 	"golang.org/x/net/context"
-
-	"github.com/jmoiron/modl"
 )
-
-// Env is an environment for a handler function.
-type Env struct {
-	DbMap *modl.DbMap
-	Cfg   Config
-}
 
 // HandleFunc is a function similar to http.HandleFunc, but extended by an
 // explicit environment parameter. It may return an error.
@@ -48,8 +39,7 @@ func RecoverHandler(ctx context.Context, env *Env, wr http.ResponseWriter, req *
 	defer func() {
 		// catch panic that may have occurred while running the handler
 		if r := recover(); r != nil {
-			log.Printf("panic received!")
-			log.Printf("r: %v", r)
+			env.Logf("panic reveiced: %v", r)
 
 			e := StatusError{Code: http.StatusInternalServerError}
 			switch t := r.(type) {
@@ -120,10 +110,10 @@ func Handle(ctx context.Context, env *Env, h HandleFunc) http.Handler {
 				// return the error to the client as a nicely formatted json document.
 				err = httpWriteJSON(wr, e.Status(), jsonError{Message: e.Error()})
 				if err != nil {
-					log.Printf("error writing error document to client: %v", err)
+					env.Logf("error writing error document to client: %v", err)
 				}
 			default:
-				log.Printf("unhandled error: %#v", err)
+				env.Logf("unhandled error: %#v", err)
 				je := jsonError{Message: "internal server error"}
 
 				if env.Cfg.Debug {
@@ -132,7 +122,7 @@ func Handle(ctx context.Context, env *Env, h HandleFunc) http.Handler {
 
 				err = httpWriteJSON(wr, http.StatusInternalServerError, je)
 				if err != nil {
-					log.Printf("error writing error document to client: %v", err)
+					env.Logf("error writing error document to client: %v", err)
 				}
 				return
 			}

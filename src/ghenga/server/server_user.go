@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"ghenga/db"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -69,7 +68,7 @@ func CreateUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 		return err
 	}
 
-	log.Printf("created user %v", u)
+	env.Debugf("created user %v", u)
 
 	return httpWriteJSON(wr, http.StatusCreated, u)
 }
@@ -91,14 +90,12 @@ func UpdateUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 
 	var u db.User
 	if err = env.DbMap.SelectOne(&u, "select id,created_at,version from users where id = ?", id); err != nil {
-		log.Printf("unable to find person ID %v, sql error: %v", id, err)
+		env.Logf("unable to find person ID %v, sql error: %v", id, err)
 		return err
 	}
 
-	log.Printf("loaded %v from db", u)
-
 	if u.Version != newUser.Version {
-		log.Printf("person record is outdated, version %v != %v",
+		env.Debugf("person record is outdated, version %v != %v",
 			u.Version, newUser.Version)
 		return StatusError{
 			Err:  errors.New("version field does not match"),
@@ -110,15 +107,13 @@ func UpdateUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 	u.Update(newUser)
 	u.ChangedAt = time.Now()
 
-	log.Printf("modified %v", u)
 	if err = u.Validate(); err != nil {
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	log.Printf("save %v", u)
 	_, err = env.DbMap.Update(&u)
 	if err != nil {
-		log.Printf("unable update person %v, sql error: %v", u, err)
+		env.Logf("unable update person %v, sql error: %v", u, err)
 		return err
 	}
 

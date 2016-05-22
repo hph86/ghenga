@@ -3,7 +3,6 @@ package server
 import (
 	"errors"
 	"ghenga/db"
-	"log"
 	"net/http"
 	"time"
 
@@ -30,11 +29,11 @@ func Login(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Req
 		}
 	}
 
-	log.Printf("login attempt for user %v", username)
+	env.Debugf("login attempt for user %v", username)
 
 	u, err := db.FindUser(env.DbMap, username)
 	if err != nil {
-		log.Printf("error finding user %q in database: %v", username, err)
+		env.Debugf("error finding user %q in database: %v", username, err)
 	}
 
 	if err != nil || !u.CheckPassword(password) {
@@ -71,7 +70,7 @@ func findSession(env *Env, req *http.Request) (*db.Session, error) {
 
 	session, err := db.FindSession(env.DbMap, token)
 	if err != nil {
-		log.Printf("error finding session with token %q in database: %v", token, err)
+		env.Logf("error finding session with token %q in database: %v", token, err)
 	}
 
 	if err != nil || session.ValidUntil.Before(time.Now()) {
@@ -80,8 +79,6 @@ func findSession(env *Env, req *http.Request) (*db.Session, error) {
 			Err:  errors.New("invalid session token"),
 		}
 	}
-
-	log.Printf("found session for token %v: %v", token, session)
 
 	return session, nil
 }
