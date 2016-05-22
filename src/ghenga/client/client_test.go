@@ -16,8 +16,6 @@ func TestClientLogin(t *testing.T) {
 		t.Errorf("login with invalid credentials suceeded, token %v", token)
 	}
 
-	t.Logf("error for invalid credentials is %v", err)
-
 	token, err = c.Login("user", "geheim")
 	if err != nil {
 		t.Errorf("login with valid credentials failed: %v, token %v", err, token)
