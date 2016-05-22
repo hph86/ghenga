@@ -8,6 +8,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/fd0/probe",
+			"repository": "https://github.com/fd0/probe",
+			"revision": "e927a93db333828f5b22882bf14a548b5eb80075",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/gorilla/context",
 			"repository": "https://github.com/gorilla/context",
 			"revision": "a8d44e7d8e4d532b6a27a02dd82abb31cc1b01bd",
