@@ -77,12 +77,12 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	for i := 0; i < people; i++ {
 		p, err := NewFakePerson("de")
 		if err != nil {
-			return probe.Trace(err, "people", people)
+			return probe.Trace(err, people)
 		}
 
 		err = dbm.Insert(p)
 		if err != nil {
-			return probe.Trace(err, "user", user)
+			return probe.Trace(err, user)
 		}
 	}
 
@@ -92,7 +92,7 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	}{{"admin", true}, {"user", false}} {
 		u, err := NewUser(s.name, "geheim")
 		if err != nil {
-			return probe.Trace(err, s.name, "geheim")
+			return probe.Trace(err, s.name)
 		}
 
 		u.Admin = s.admin
@@ -104,7 +104,7 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	for i := 0; i < user; i++ {
 		u, err := NewFakeUser("de")
 		if err != nil {
-			return probe.Trace(err, "de")
+			return probe.Trace(err)
 		}
 
 		err = dbm.Insert(u)
