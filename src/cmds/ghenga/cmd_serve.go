@@ -58,6 +58,8 @@ func expireSessions(ctx context.Context, env *server.Env, d time.Duration) {
 const sessionExpireInterval = 5 * time.Minute
 
 func (opts *cmdServe) Execute(args []string) (err error) {
+	lgr := log.New(os.Stderr, "", log.LstdFlags)
+
 	dbmap, cleanup, e := OpenDB()
 	if e != nil {
 		return e
@@ -67,7 +69,7 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	log.Printf("starting server at %v:%d", opts.Addr, opts.Port)
+	lgr.Printf("starting server at %v:%d", opts.Addr, opts.Port)
 
 	env := &server.Env{
 		DbMap: dbmap,
@@ -75,6 +77,11 @@ func (opts *cmdServe) Execute(args []string) (err error) {
 			Debug:           globalOpts.Debug,
 			SessionDuration: sessionDuration,
 		},
+	}
+
+	env.Logger.Error = lgr
+	if globalOpts.Debug {
+		env.Logger.Debug = log.New(os.Stderr, "", log.LstdFlags)
 	}
 
 	go expireSessions(ctx, env, sessionExpireInterval)
