@@ -40,13 +40,8 @@ func Trace(err error, data ...interface{}) error {
 	return traceErr
 }
 
-// Error returns the underlying error's string.
 func (err Error) Error() string {
-	if err.Cause == nil {
-		return "<probe.Error nil>"
-	}
-
-	return err.Cause.Error()
+	return err.Backtrace()
 }
 
 func (err Error) String() string {
