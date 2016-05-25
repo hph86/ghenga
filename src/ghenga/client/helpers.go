@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func dumpHTTP(wr io.Writer, req *http.Request, res *http.Response) {
+func dumpHTTPRequest(wr io.Writer, req *http.Request) {
 	if wr == nil {
 		return
 	}
@@ -19,10 +19,16 @@ func dumpHTTP(wr io.Writer, req *http.Request, res *http.Response) {
 	if err != nil {
 		fmt.Fprintf(wr, "unable to dump http request: %v\n", err)
 	}
-	wr.Write(dump)
+	wr.Write(append(dump, '\n'))
+}
+
+func dumpHTTPResponse(wr io.Writer, res *http.Response) {
+	if wr == nil {
+		return
+	}
 
 	fmt.Fprintf(wr, "====== RESPONSE ===================================\n")
-	dump, err = httputil.DumpResponse(res, true)
+	dump, err := httputil.DumpResponse(res, true)
 	if err != nil {
 		fmt.Fprintf(wr, "unable to dump http response: %v\n", err)
 	}

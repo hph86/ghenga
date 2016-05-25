@@ -64,8 +64,9 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 		req.Header.Set("X-Auth-Token", c.Token)
 	}
 
+	dumpHTTPRequest(c.trace, req)
 	res, err := c.C.Do(req)
-	dumpHTTP(c.trace, req, res)
+	dumpHTTPResponse(c.trace, res)
 	return res, err
 }
 
