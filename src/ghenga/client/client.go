@@ -57,8 +57,13 @@ func (c *Client) TraceOff() {
 	c.trace = nil
 }
 
-// do executes the http request req.
+// do executes the http request req. If an authentication token is available,
+// it will be set in the request.
 func (c *Client) do(req *http.Request) (*http.Response, error) {
+	if c.Token != "" {
+		req.Header.Set("X-Auth-Token", c.Token)
+	}
+
 	res, err := c.C.Do(req)
 	dumpHTTP(c.trace, req, res)
 	return res, err
@@ -104,25 +109,10 @@ func (c *Client) Login(username, password string) (token string, err error) {
 	return lr.Token, nil
 }
 
-// newRequest returns a new HTTP request with the token set in the header
-// `X-Auth-Token`, if available.
-func (c *Client) newRequest(method, url string, body io.Reader) (*http.Request, error) {
-	req, err := http.NewRequest(method, url, body)
-	if err != nil {
-		return nil, probe.Trace(err, method, url, body)
-	}
-
-	if c.Token != "" {
-		req.Header.Set("X-Auth-Token", c.Token)
-	}
-
-	return req, nil
-}
-
 // get executes an HTTP get request, with the authentication header set if a
 // token is available.
 func (c *Client) get(url string) (*http.Response, error) {
-	req, err := c.newRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, probe.Trace(err, url)
 	}
