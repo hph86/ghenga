@@ -36,8 +36,10 @@ func TestEnv(t *testing.T) (env *Env, cleanup func()) {
 		},
 	}
 
-	env.Logger.Debug = log.New(os.Stdout, "", log.LstdFlags)
-	env.Logger.Error = log.New(os.Stdout, "", log.LstdFlags)
+	if os.Getenv("SERVERTRACE") != "" {
+		env.Logger.Debug = log.New(os.Stdout, "", log.LstdFlags)
+		env.Logger.Error = log.New(os.Stdout, "", log.LstdFlags)
+	}
 
 	return env, func() { dbcleanup() }
 }
