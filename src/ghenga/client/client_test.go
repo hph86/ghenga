@@ -2,6 +2,7 @@ package client
 
 import (
 	"ghenga/server"
+	"os"
 	"testing"
 )
 
@@ -10,6 +11,9 @@ func TestClientLogin(t *testing.T) {
 	defer cleanup()
 
 	c := New(srv.URL)
+	if os.Getenv("HTTPTRACE") != "" {
+		c.TraceOn(os.Stderr)
+	}
 
 	err := c.Check()
 	if err == nil {
@@ -28,5 +32,13 @@ func TestClientLogin(t *testing.T) {
 
 	if err = c.Check(); err != nil {
 		t.Errorf("check with valid credentials failed: %v", err)
+	}
+
+	if err = c.Logout(); err != nil {
+		t.Errorf("error invalidating token: %v", err)
+	}
+
+	if err = c.Check(); err == nil {
+		t.Errorf("check succeeded after logout")
 	}
 }

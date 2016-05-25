@@ -176,3 +176,39 @@ func TestUserUpdate(t *testing.T) {
 		t.Fatalf("update did not fail despite wrong version field")
 	}
 }
+
+func TestUserUpdatePassword(t *testing.T) {
+	db, cleanup := TestDBFilled(t, 20, 3)
+	defer cleanup()
+
+	u, err := FindUser(db, "user")
+	if err != nil {
+		t.Fatalf("unable to load user %q: %v", "user", err)
+	}
+
+	if !u.CheckPassword("geheim") {
+		t.Fatalf("password for account `user` is not `geheim`")
+	}
+
+	u.Password = "foobar2"
+	if _, err = db.Update(u); err != nil {
+		t.Errorf("unable to update user: %v", err)
+	}
+
+	if u.CheckPassword("geheim") {
+		t.Errorf("password for account `user` is still `geheim`")
+	}
+
+	if !u.CheckPassword("foobar2") {
+		t.Errorf("changed password for account `user` is not `foobar2`")
+	}
+
+	u2, err := FindUser(db, "user")
+	if err != nil {
+		t.Fatalf("unable to load user %q: %v", "user", err)
+	}
+
+	if !u2.CheckPassword("foobar2") {
+		t.Errorf("changed password for account `user` in the db is not `foobar2`")
+	}
+}

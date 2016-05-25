@@ -17,6 +17,8 @@ type User struct {
 	PasswordHash string
 	Admin        bool
 
+	Password string `db:"-" json:"-"`
+
 	ChangedAt time.Time
 	CreatedAt time.Time
 	Version   int64
@@ -132,6 +134,26 @@ func (u *User) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+// PreInsert is run before a person is saved into the database. It is used to
+// update the password hash when the field `Password` is set.
+func (u *User) PreInsert(db modl.SqlExecutor) error {
+	if u.Password == "" {
+		return nil
+	}
+
+	return u.UpdatePasswordHash(u.Password)
+}
+
+// PreUpdate is run before a person is saved into the database. It is used to
+// update the password hash when the field `Password` is set.
+func (u *User) PreUpdate(db modl.SqlExecutor) error {
+	if u.Password == "" {
+		return nil
+	}
+
+	return u.UpdatePasswordHash(u.Password)
 }
 
 // Validate checks whether the user record does not contain any errors.

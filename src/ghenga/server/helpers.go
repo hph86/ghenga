@@ -2,7 +2,9 @@ package server
 
 import (
 	"ghenga/db"
+	"log"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -33,6 +35,9 @@ func TestEnv(t *testing.T) (env *Env, cleanup func()) {
 			SessionDuration: 600 * time.Second,
 		},
 	}
+
+	env.Logger.Debug = log.New(os.Stdout, "", log.LstdFlags)
+	env.Logger.Error = log.New(os.Stdout, "", log.LstdFlags)
 
 	return env, func() { dbcleanup() }
 }

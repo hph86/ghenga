@@ -26,6 +26,9 @@ type Client struct {
 
 	// used by the methods on client to connect to the ghenga API
 	C *http.Client
+
+	// http request/response tracing
+	trace io.Writer
 }
 
 // New returns a new Client. In the parameter `url` it expects the base URL for
@@ -44,6 +47,23 @@ type LoginResponse struct {
 	ValidFor uint   `json:"valid_for"`
 }
 
+// TraceOn enables printing all HTTP requests and responses to the given writer.
+func (c *Client) TraceOn(wr io.Writer) {
+	c.trace = wr
+}
+
+// TraceOff disables debug output for HTTP requests.
+func (c *Client) TraceOff() {
+	c.trace = nil
+}
+
+// do executes the http request req.
+func (c *Client) do(req *http.Request) (*http.Response, error) {
+	res, err := c.C.Do(req)
+	dumpHTTP(c.trace, req, res)
+	return res, err
+}
+
 // Login tries to log into the API with the given credentials. On success, the
 // authentication token is returned and stored within the Client struct for
 // further use.
@@ -56,7 +76,7 @@ func (c *Client) Login(username, password string) (token string, err error) {
 
 	req.SetBasicAuth(username, password)
 
-	res, httpErr := c.C.Do(req)
+	res, httpErr := c.do(req)
 	if err != nil {
 		return "", probe.Trace(httpErr)
 	}
@@ -102,12 +122,12 @@ func (c *Client) newRequest(method, url string, body io.Reader) (*http.Request, 
 // get executes an HTTP get request, with the authentication header set if a
 // token is available.
 func (c *Client) get(url string) (*http.Response, error) {
-	req, err := c.newRequest("GET", c.BaseURL+"/api/login/info", nil)
+	req, err := c.newRequest("GET", url, nil)
 	if err != nil {
 		return nil, probe.Trace(err, url)
 	}
 
-	res, err := c.C.Do(req)
+	res, err := c.do(req)
 	if err != nil {
 		return nil, probe.Trace(err)
 	}
@@ -115,9 +135,10 @@ func (c *Client) get(url string) (*http.Response, error) {
 	return res, nil
 }
 
-// Check queries the API server whether the token is still valid.
-func (c *Client) Check() error {
-	res, err := c.get(c.BaseURL + "/api/login/info")
+// getJSON executes an HTTP get request using get() and tries to unmarshal the
+// response into data. It expects an HTTP status code of 200 (OK).
+func (c *Client) getJSON(url string, data interface{}) error {
+	res, err := c.get(url)
 	if err != nil {
 		return probe.Trace(err)
 	}
@@ -126,11 +147,39 @@ func (c *Client) Check() error {
 		return probe.Trace(ParseError(res))
 	}
 
-	var lr LoginResponse
 	dec := json.NewDecoder(res.Body)
-	if err := dec.Decode(&lr); err != nil {
+	if err := dec.Decode(data); err != nil {
 		return probe.Trace(err)
 	}
 
 	return probe.Trace(res.Body.Close())
+}
+
+// Check queries the API server whether the token is still valid.
+func (c *Client) Check() error {
+	var lr LoginResponse
+	err := c.getJSON(c.BaseURL+"/api/login/info", &lr)
+	if err != nil {
+		return probe.Trace(err)
+	}
+
+	return nil
+}
+
+// Logout invalidates the session token.
+func (c *Client) Logout() error {
+	if c.Token == "" {
+		return nil
+	}
+
+	res, err := c.get(c.BaseURL + "/api/login/invalidate")
+	if err != nil {
+		return probe.Trace(err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return probe.Trace(ParseError(res))
+	}
+
+	return res.Body.Close()
 }
