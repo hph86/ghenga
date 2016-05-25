@@ -17,7 +17,7 @@ type User struct {
 	PasswordHash string
 	Admin        bool
 
-	Password string `db:"-" json:"-"`
+	Password string `db:"-"`
 
 	ChangedAt time.Time
 	CreatedAt time.Time
@@ -93,6 +93,10 @@ func (u User) MarshalJSON() ([]byte, error) {
 		ChangedAt: u.ChangedAt.Format(timeLayout),
 		CreatedAt: u.CreatedAt.Format(timeLayout),
 		Version:   u.Version,
+	}
+
+	if u.Password != "" && u.PasswordHash == "" {
+		ju.Password = u.Password
 	}
 
 	return json.Marshal(ju)

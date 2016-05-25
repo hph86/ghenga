@@ -126,14 +126,14 @@ func (c *Client) get(url string) (*http.Response, error) {
 }
 
 // getJSON executes an HTTP get request using get() and tries to unmarshal the
-// response into data. It expects an HTTP status code of 200 (OK).
-func (c *Client) getJSON(url string, data interface{}) error {
-	res, err := c.get(url)
+// response into data. It expects the given status code.
+func (c *Client) doJSON(req *http.Request, responseStatus int, data interface{}) error {
+	res, err := c.do(req)
 	if err != nil {
 		return probe.Trace(err)
 	}
 
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != responseStatus {
 		return probe.Trace(ParseError(res))
 	}
 
@@ -147,8 +147,13 @@ func (c *Client) getJSON(url string, data interface{}) error {
 
 // Check queries the API server whether the token is still valid.
 func (c *Client) Check() error {
+	req, err := http.NewRequest("GET", c.BaseURL+"/api/login/info", nil)
+	if err != nil {
+		return probe.Trace(err)
+	}
+
 	var lr LoginResponse
-	err := c.getJSON(c.BaseURL+"/api/login/info", &lr)
+	err = c.doJSON(req, http.StatusOK, &lr)
 	if err != nil {
 		return probe.Trace(err)
 	}
