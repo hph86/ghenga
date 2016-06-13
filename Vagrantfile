@@ -39,6 +39,7 @@ Vagrant.configure(2) do |config|
 
        ln -sf /usr/bin/nodejs /usr/bin/node
        npm install -g bower
+       npm install -g grunt-cli
   SHELL
 
   config.vm.provision "shell", :privileged => false, inline: <<-SHELL

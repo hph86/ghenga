@@ -35,10 +35,13 @@ vagrant ssh
 Then run the following commands to build and start the ghenga server:
 
 ```shell
-(cd ghenga/ghenga-ui && bower update)
-cd ghenga
+cd ghenga/ghenga-ui
+npm install
+bower update
+grunt build
+cd ..
 gb build
-bin/ghenga serve --public ghenga-ui/app
+bin/ghenga serve --public ghenga-ui/build
 ```
 
 The database can be filled with (real-looking) fake data, including the user
