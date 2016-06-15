@@ -44,10 +44,11 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", :privileged => false, inline: <<-SHELL
        wget -q -O /tmp/go.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
-       mkdir .local
+       mkdir -p .local
        cd .local/
        tar xzf /tmp/go.tar.gz
 
+       cat /etc/skel/.profile > ~/.profile
        echo 'export GOROOT=$HOME/.local/go' >> ~/.profile
        echo 'export GOPATH=$HOME/go' >> ~/.profile
        echo 'export GOBIN=$HOME/bin' >> ~/.profile
