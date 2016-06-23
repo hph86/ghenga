@@ -26,6 +26,10 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder ".", "/home/vagrant/ghenga"
 
   config.vm.provision "shell", inline: <<-SHELL
+       curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+       echo 'deb https://deb.nodesource.com/node_4.x wily main' > /etc/apt/sources.list.d/nodesource.list
+       echo 'deb-src https://deb.nodesource.com/node_4.x wily main' >> /etc/apt/sources.list.d/nodesource.list
+
        export DEBIAN_FRONTEND=noninteractive
        apt-get update
        apt-get -y dist-upgrade
@@ -33,14 +37,15 @@ Vagrant.configure(2) do |config|
        apt-get install -y \
           -o Dpkg::Options::="--force-confdef" \
           -o Dpkg::Options::="--force-confnew" \
-          curl wget git vim tmux screen zsh sqlite3 npm
+          curl wget git vim tmux screen zsh sqlite3 nodejs
 
        locale-gen -a de_DE.UTF-8 en_US.UTF-8 en_GB.UTF-8
 
-       update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
        npm install -g bower
        npm install -g grunt-cli
   SHELL
+
+  config.vm.provision :reload
 
   config.vm.provision "shell", :privileged => false, inline: <<-SHELL
        wget -q -O /tmp/go.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
