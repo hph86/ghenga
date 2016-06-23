@@ -37,7 +37,7 @@ Vagrant.configure(2) do |config|
 
        locale-gen -a de_DE.UTF-8 en_US.UTF-8 en_GB.UTF-8
 
-       ln -sf /usr/bin/nodejs /usr/bin/node
+       update-alternatives --install /usr/bin/node node /usr/bin/nodejs 10
        npm install -g bower
        npm install -g grunt-cli
   SHELL
