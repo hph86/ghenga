@@ -1,9 +1,9 @@
 -- +migrate Up
 create table people (
-    id integer not null primary key autoincrement,
+    id integer not null primary key,
     version int not null,
-    created_at datetime not null,
-    changed_at datetime not null,
+    created_at timestamp with time zone not null,
+    changed_at timestamp with time zone not null,
 
     name text not null,
     title text not null,
@@ -20,7 +20,7 @@ create table people (
 );
 
 create table phone_numbers (
-    id integer not null primary key autoincrement,
+    id integer not null primary key,
 
     number text not null,
     type text not null,
@@ -30,21 +30,25 @@ create table phone_numbers (
 );
 
 create table users (
-    id integer not null primary key autoincrement,
+    id integer not null primary key,
     version int not null,
-    created_at datetime not null,
-    changed_at datetime not null,
+    created_at timestamp with time zone not null,
+    changed_at timestamp with time zone not null,
     admin boolean not null,
 
-    login text not null,
+    login text not null unique,
     password_hash text not null
 );
 
-create unique index users_login on users(login);
+create table sessions (
+    token text not null primary key,
+    "user" text not null references users(login),
+    valid_until timestamp with time zone not null
+);
 
 
 -- +migrate Down
-drop table people;
 drop table phone_numbers;
-drop index users_login;
+drop table people;
+drop table sessions;
 drop table users;
