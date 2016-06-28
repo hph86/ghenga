@@ -63,13 +63,19 @@ func Init(dataSource string) (*modl.DbMap, error) {
 		return nil, err
 	}
 
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+
 	dbmap, err := configDBMap(db)
 	if err != nil {
 		return nil, err
 	}
 
 	if os.Getenv("DBTRACE") != "" {
-		dbmap.TraceOn("DB: ", log.New(os.Stderr, "", log.LstdFlags))
+		l := log.New(os.Stderr, "", log.LstdFlags)
+		l.Printf("tracing database queries, data source is %q", dataSource)
+		dbmap.TraceOn("DB: ", l)
 	}
 
 	return dbmap, nil
