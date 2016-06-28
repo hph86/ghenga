@@ -37,9 +37,15 @@ Vagrant.configure(2) do |config|
        apt-get install -y \
           -o Dpkg::Options::="--force-confdef" \
           -o Dpkg::Options::="--force-confnew" \
-          curl wget git vim tmux screen zsh sqlite3 nodejs
+          curl wget git vim tmux screen zsh moreutils silversearcher-ag nodejs postgresql
 
        locale-gen -a de_DE.UTF-8 en_US.UTF-8 en_GB.UTF-8
+       grep -q LC_ALL /etc/environment || echo -en 'LC_ALL=en_US.UTF-8\nLANG=en_US.UTF-8\n' >> /etc/environment
+
+       # create database 'vagrant'
+       echo "create user vagrant with encrypted password 'vagrant';" | sudo -u postgres psql
+       echo "create database vagrant with owner vagrant" | sudo -u postgres psql
+       echo "create database test with owner vagrant" | sudo -u postgres psql
   SHELL
 
   config.vm.provision :reload

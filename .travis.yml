@@ -15,6 +15,12 @@ go:
   - 1.5.4
   - 1.6.2
 
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'create database travis' -U postgres
+
 install:
   - go version
   - export GOBIN="$GOPATH/bin"
@@ -26,6 +32,6 @@ install:
 
 script:
   - gb build
-  - gb test
+  - GHENGA_TEST_DB="host=localhost dbname=travis user=postgres sslmode=disable" gb test
   - diff <(GOPATH="$PWD:$PWD/vendor" goimports -d ./src) <(printf "")
   - diff <(golint ./src/...) <(printf "")

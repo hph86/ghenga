@@ -194,7 +194,21 @@ func (p *Person) PostInsert(db modl.SqlExecutor) error {
 
 // PostGet loads the phone numbers associated with the person.
 func (p *Person) PostGet(db modl.SqlExecutor) error {
-	return db.Select(&p.PhoneNumbers, "SELECT * FROM phone_numbers WHERE person_id = ?", p.ID)
+	return db.Select(&p.PhoneNumbers, "SELECT * FROM phone_numbers WHERE person_id = $1", p.ID)
+}
+
+// in is a small wrapper around the sqlx.In() function which handles rebinding
+// to a different bindtype.
+func in(query string, args ...interface{}) (string, []interface{}, error) {
+	query, args, err := sqlx.In(query, args...)
+	if err != nil {
+		return query, args, err
+	}
+
+	bindType := sqlx.BindType(dialect)
+	query = sqlx.Rebind(bindType, query)
+
+	return query, args, err
 }
 
 // PostUpdate is run after a person has been updated. It handles updating the
@@ -219,7 +233,7 @@ func (p *Person) PostUpdate(db modl.SqlExecutor) error {
 
 	if len(ids) > 0 {
 		// remove excess phone numbers
-		query, args, err := sqlx.In("DELETE FROM phone_numbers WHERE person_id = ? AND id NOT IN (?)", p.ID, ids)
+		query, args, err := in("DELETE FROM phone_numbers WHERE person_id = ? AND id NOT IN (?)", p.ID, ids)
 		if err != nil {
 			return err
 		}
@@ -229,7 +243,7 @@ func (p *Person) PostUpdate(db modl.SqlExecutor) error {
 	}
 
 	// else remove all phone numbers
-	_, err := db.Exec("DELETE FROM phone_numbers WHERE person_id = ?", p.ID)
+	_, err := db.Exec("DELETE FROM phone_numbers WHERE person_id = $1", p.ID)
 	return err
 }
 
@@ -275,7 +289,7 @@ func (p Person) String() string {
 func FindPerson(db *modl.DbMap, id int64) (*Person, error) {
 	var p Person
 
-	err := db.SelectOne(&p, "SELECT * FROM people WHERE id = ?", id)
+	err := db.SelectOne(&p, "SELECT * FROM people WHERE id = $1", id)
 	if err != nil {
 		return nil, err
 	}

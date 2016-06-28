@@ -38,8 +38,8 @@ var testPersons = []struct {
 				{Type: "other", Number: "2134"},
 			},
 			Comment:   "fake profile",
-			ChangedAt: parseTime("2016-04-24T10:30:07+02:00"),
-			CreatedAt: parseTime("2016-04-24T10:30:07+02:00"),
+			ChangedAt: parseTime("2016-04-24T10:30:07+00:00"),
+			CreatedAt: parseTime("2016-04-24T10:30:07+00:00"),
 			Version:   23,
 		},
 	},
@@ -92,7 +92,7 @@ func TestPersonInsertSelect(t *testing.T) {
 
 	for i, test := range testPersons {
 		var p Person
-		err := db.SelectOne(&p, "SELECT * FROM people WHERE id=?", ids[i])
+		err := db.SelectOne(&p, "SELECT * FROM people WHERE id = $1", ids[i])
 		if err != nil {
 			t.Errorf("loading %v failed: %v", test.p.ID, err)
 			continue

@@ -1,9 +1,6 @@
 package db
 
 import (
-	"io/ioutil"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/jmoiron/modl"
@@ -49,38 +46,36 @@ func verifyTestEntries(t *testing.T, db *modl.DbMap) {
 }
 
 func TestInit(t *testing.T) {
-	d, err := ioutil.TempDir("", "ghenga-db-test-")
+	db, err := Init(TestDataSource(t))
 	if err != nil {
-		t.Fatalf("error creating tempdir: %v", err)
+		t.Fatalf("Init() returned error: %v", err)
 	}
 
-	dbfile := filepath.Join(d, "test.db")
+	TestCleanupDB(t, db)
 
-	db, err := Init(dbfile)
-	if err != nil {
-		t.Fatalf("unable to init database: %v", err)
+	if err = Migrate(db); err != nil {
+		t.Fatalf("migration failed: %v", err)
 	}
 
 	insertTestEntries(t, db)
+
 	// close the db and open it again
-	if err = db.Db.Close(); err != nil {
+	if err := db.Db.Close(); err != nil {
 		t.Fatalf("close db: %v", err)
 	}
 
 	// reopen db
-	db, err = Init(dbfile)
+	db, err = Init(TestDataSource(t))
 	if err != nil {
 		t.Fatalf("unable to init database: %v", err)
 	}
 
 	verifyTestEntries(t, db)
 
+	TestCleanupDB(t, db)
+
 	if err = db.Db.Close(); err != nil {
 		t.Fatalf("close db: %v", err)
-	}
-
-	if err = os.RemoveAll(d); err != nil {
-		t.Fatalf("error removing tempdir: %v", err)
 	}
 }
 
