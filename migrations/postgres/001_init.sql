@@ -1,9 +1,9 @@
 -- +migrate Up
 create table people (
-    id integer not null primary key,
+    id serial not null primary key,
     version int not null,
-    created_at timestamp with time zone not null,
-    changed_at timestamp with time zone not null,
+    created_at timestamp without time zone not null,
+    changed_at timestamp without time zone not null,
 
     name text not null,
     title text not null,
@@ -20,7 +20,7 @@ create table people (
 );
 
 create table phone_numbers (
-    id integer not null primary key,
+    id serial not null primary key,
 
     number text not null,
     type text not null,
@@ -30,10 +30,10 @@ create table phone_numbers (
 );
 
 create table users (
-    id integer not null primary key,
+    id serial not null primary key,
     version int not null,
-    created_at timestamp with time zone not null,
-    changed_at timestamp with time zone not null,
+    created_at timestamp without time zone not null,
+    changed_at timestamp without time zone not null,
     admin boolean not null,
 
     login text not null unique,
@@ -43,12 +43,12 @@ create table users (
 create table sessions (
     token text not null primary key,
     "user" text not null references users(login),
-    valid_until timestamp with time zone not null
+    valid_until timestamp without time zone not null
 );
 
 
 -- +migrate Down
-drop table phone_numbers;
-drop table people;
-drop table sessions;
-drop table users;
+drop table if exists phone_numbers CASCADE;
+drop table if exists people CASCADE;
+drop table if exists sessions CASCADE;
+drop table if exists users CASCADE;

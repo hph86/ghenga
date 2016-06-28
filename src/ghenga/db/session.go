@@ -59,7 +59,7 @@ func SaveNewSession(db *modl.DbMap, user string, valid time.Duration) (*Session,
 // FindSession searches the session with the given token in the database.
 func FindSession(db *modl.DbMap, token string) (*Session, error) {
 	var s Session
-	err := db.SelectOne(&s, "SELECT * FROM sessions WHERE token = ?", token)
+	err := db.SelectOne(&s, "SELECT * FROM sessions WHERE token = $1", token)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func FindSession(db *modl.DbMap, token string) (*Session, error) {
 
 // ExpireSessions removes expired sessions from the db.
 func ExpireSessions(db *modl.DbMap) (sessionsRemoved int64, err error) {
-	res := db.Dbx.MustExec("DELETE FROM sessions WHERE valid_until < datetime('now', 'localtime')")
+	res := db.Dbx.MustExec("DELETE FROM sessions WHERE valid_until < now()")
 	return res.RowsAffected()
 }
 

@@ -7,7 +7,7 @@ import "github.com/jmoiron/modl"
 func FuzzyFindPersons(db *modl.DbMap, query string) ([]*Person, error) {
 	var result []*Person
 
-	err := db.Select(&result, "SELECT * FROM people WHERE name LIKE ?", "%"+query+"%")
+	err := db.Select(&result, "SELECT * FROM people WHERE name ILIKE $1", "%"+query+"%")
 	if err != nil {
 		return nil, err
 	}

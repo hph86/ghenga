@@ -1,7 +1,6 @@
 package db
 
 import (
-	"log"
 	"math/rand"
 	"os"
 	"testing"
@@ -117,22 +116,48 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 	return nil
 }
 
-// TestDB returns an in-memory database suitable for testing. If the
-// environment variable GHENGA_TEST_DB is set to a file name, this is used
-// instead.
-func TestDB(t *testing.T) (*modl.DbMap, func()) {
-	filename := os.Getenv("GHENGA_TEST_DB")
-	if filename == "" {
-		filename = ":memory:"
+const defaultDataSource = "host=/var/run/postgresql"
+
+// TestDataSource returns a datasource used for testing. This defaults to the
+// postgresql running on the default unix domain socket. If the environment
+// variable GHENGA_TEST_DB is set, this value is returned instead.
+func TestDataSource(t *testing.T) string {
+	dataSource := os.Getenv("GHENGA_TEST_DB")
+	if dataSource == "" {
+		dataSource = defaultDataSource
 	}
 
-	dbmap, err := Init(filename)
+	return dataSource
+}
+
+// TestCleanupDB removes everything in the database.
+func TestCleanupDB(t *testing.T, db *modl.DbMap) {
+	var queries []string
+	err := db.Select(&queries, `SELECT 'DROP TABLE "' || tablename || '" CASCADE;' FROM pg_tables WHERE schemaname='public'`)
+	if err != nil {
+		t.Fatalf("unable to clean database: %v", err)
+	}
+
+	for _, query := range queries {
+		_, err = db.Exec(query)
+		if err != nil {
+			t.Errorf("unable to execute querie %q: %v", query, err)
+		}
+	}
+}
+
+// TestDB returns an database suitable for testing. The database is emptied
+// before TestDB returns.
+func TestDB(t *testing.T) (*modl.DbMap, func()) {
+	dbmap, err := Init(TestDataSource(t))
 	if err != nil {
 		t.Fatalf("unable to initialize db: %v", err)
 	}
 
-	if os.Getenv("DBTRACE") != "" {
-		dbmap.TraceOn("DB: ", log.New(os.Stderr, "", log.LstdFlags))
+	TestCleanupDB(t, dbmap)
+
+	if err := Migrate(dbmap); err != nil {
+		t.Fatalf("migration failed: %v", err)
 	}
 
 	return dbmap, func() {
