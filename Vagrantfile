@@ -41,10 +41,14 @@ Vagrant.configure(2) do |config|
 
        locale-gen -a de_DE.UTF-8 en_US.UTF-8 en_GB.UTF-8
 
-       grep -q LC_ALL /etc/environment || echo -e 'LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8' >> /etc/environment
+       grep -q LC_ALL /etc/environment || echo -en 'LC_ALL=en_US.UTF-8\nLANG=en_US.UTF-8\n' >> /etc/environment
 
        npm install -g bower
        npm install -g grunt-cli
+
+       # create database 'vagrant'
+       echo "create user vagrant with encrypted password 'vagrant';" | sudo -u postgres psql
+       echo "create database vagrant with owner vagrant" | sudo -u postgres psql
   SHELL
 
   config.vm.provision :reload
