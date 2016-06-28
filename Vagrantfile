@@ -49,6 +49,7 @@ Vagrant.configure(2) do |config|
        # create database 'vagrant'
        echo "create user vagrant with encrypted password 'vagrant';" | sudo -u postgres psql
        echo "create database vagrant with owner vagrant" | sudo -u postgres psql
+       echo "create database test with owner vagrant" | sudo -u postgres psql
   SHELL
 
   config.vm.provision :reload
