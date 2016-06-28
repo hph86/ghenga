@@ -50,6 +50,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/lib/pq",
+			"repository": "https://github.com/lib/pq",
+			"revision": "4dd446efc17690bc53e154025146f73203b18309",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/manveru/faker",
 			"repository": "https://github.com/manveru/faker",
 			"revision": "717f7cf83fb78669bfab612749c2e8ff63d5be11",
