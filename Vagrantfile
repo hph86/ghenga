@@ -40,9 +40,6 @@ Vagrant.configure(2) do |config|
           curl wget git vim tmux screen zsh sqlite3 nodejs
 
        locale-gen -a de_DE.UTF-8 en_US.UTF-8 en_GB.UTF-8
-
-       npm install -g bower
-       npm install -g grunt-cli
   SHELL
 
   config.vm.provision :reload
