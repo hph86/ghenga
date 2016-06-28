@@ -32,6 +32,6 @@ install:
 
 script:
   - gb build
-  - GHENGA_TEST_DB="host=localhost dbname=travis username=postgres sslmode=disable" gb test
+  - GHENGA_TEST_DB="host=localhost dbname=travis user=postgres sslmode=disable" gb test
   - diff <(GOPATH="$PWD:$PWD/vendor" goimports -d ./src) <(printf "")
   - diff <(golint ./src/...) <(printf "")
