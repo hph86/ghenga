@@ -37,9 +37,7 @@ Then run the following commands to build and start the ghenga server:
 
 ```shell
 cd ghenga/ghenga-ui
-npm install
-bower update
-grunt build
+make dep && make
 cd ..
 gb build
 bin/ghenga serve --public ghenga-ui/build
