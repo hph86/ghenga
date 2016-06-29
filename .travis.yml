@@ -19,8 +19,8 @@ services:
   - postgresql
 
 before_script:
-  - psql -c "create user travis with encrypted password 'travis'" -U postgres
-  - psql -c "create database travis with owner travis" -U postgres
+  - psql -c "create user ghenga with encrypted password 'ghenga'" -U postgres
+  - psql -c "create database ghenga with owner ghenga" -U postgres
 
 install:
   - go version
@@ -33,6 +33,6 @@ install:
 
 script:
   - gb build
-  - GHENGA_TEST_DB="host=localhost user=travis password=travis dbname=travis" gb test
+  - GHENGA_TEST_DB="host=localhost user=ghenga password=ghenga dbname=ghenga" gb test
   - diff <(GOPATH="$PWD:$PWD/vendor" goimports -d ./src) <(printf "")
   - diff <(golint ./src/...) <(printf "")
