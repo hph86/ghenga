@@ -7,9 +7,8 @@ The ghenga micro CRM
 
 ## Getting Started
 
-Install `vagrant`, the `vagrant-reload` plugin, and execute `vagrant up` to
-download and provision the development environment. Then use `vagrant ssh` to
-log into the VM.
+Install `vagrant` and execute `vagrant up` to download and provision the
+development environment. Then use `vagrant ssh` to log into the VM.
 
 The default vagrant base box is `ubuntu/wily64`, if you need to use Parallels
 instead of VirtualBox, you can provision and use a different base image as
@@ -27,9 +26,10 @@ repository](https://github.com/ghenga/ghenga-ui):
 git clone https://github.com/ghenga/ghenga-ui
 ```
 
-Afterwards, log into the virtual machine:
+Afterwards, reboot the virtual machine and log in via SSH:
 
 ```
+vagrant reload
 vagrant ssh
 ```
 

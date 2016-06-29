@@ -48,8 +48,6 @@ Vagrant.configure(2) do |config|
        echo "create database test with owner vagrant" | sudo -u postgres psql
   SHELL
 
-  config.vm.provision :reload
-
   config.vm.provision "shell", :privileged => false, inline: <<-SHELL
        wget -q -O /tmp/go.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
        mkdir -p .local
