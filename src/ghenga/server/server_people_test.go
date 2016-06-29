@@ -130,7 +130,7 @@ func TestPersonCRUD(t *testing.T) {
 
 	status, body = request(t, token, "GET", fmt.Sprintf("%s/api/person/%d", srv.URL, person.ID), nil)
 	if status != 200 {
-		t.Fatalf("reading person again yielded unexpected status %d", status)
+		t.Fatalf("reading person again yielded unexpected status %d: %s", status, body)
 	}
 
 	t.Logf("person: %v", person)

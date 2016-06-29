@@ -31,7 +31,7 @@ func ShowUser(ctx context.Context, env *Env, res http.ResponseWriter, req *http.
 	}
 
 	var user db.User
-	err = env.DbMap.SelectOne(&user, "select * from users where id = ?", id)
+	err = env.DbMap.SelectOne(&user, "select * from users where id = $1", id)
 	if err != nil {
 		return StatusError{
 			Err:  errors.New("user not found"),
@@ -89,7 +89,7 @@ func UpdateUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 	}
 
 	var u db.User
-	if err = env.DbMap.SelectOne(&u, "select id,created_at,version from users where id = ?", id); err != nil {
+	if err = env.DbMap.SelectOne(&u, "select id,created_at,version from users where id = $1", id); err != nil {
 		env.Logf("unable to find person ID %v, sql error: %v", id, err)
 		return err
 	}
@@ -127,7 +127,7 @@ func DeleteUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	res := env.DbMap.Dbx.MustExec("delete from users where id = ?", id)
+	res := env.DbMap.Dbx.MustExec("delete from users where id = $1", id)
 
 	n, err := res.RowsAffected()
 	if err != nil {

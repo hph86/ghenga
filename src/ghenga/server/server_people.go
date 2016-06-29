@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"ghenga/db"
 	"net/http"
 	"strconv"
@@ -32,10 +33,10 @@ func ShowPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *htt
 	}
 
 	var person db.Person
-	err = env.DbMap.SelectOne(&person, "select * from people where id = ?", id)
+	err = env.DbMap.SelectOne(&person, "select * from people where id = $1", id)
 	if err != nil {
 		return StatusError{
-			Err:  errors.New("person not found"),
+			Err:  fmt.Errorf("person not found: %v", err),
 			Code: http.StatusNotFound,
 		}
 	}
@@ -90,7 +91,7 @@ func UpdatePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *ht
 	}
 
 	var p db.Person
-	if err = env.DbMap.SelectOne(&p, "select id,created_at,version from people where id = ?", id); err != nil {
+	if err = env.DbMap.SelectOne(&p, "select id,created_at,version from people where id = $1", id); err != nil {
 		env.Logf("unable to find person ID %v, sql error: %v", id, err)
 		return err
 	}
@@ -129,7 +130,7 @@ func DeletePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *ht
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	res := env.DbMap.Dbx.MustExec("delete from people where id = ?", id)
+	res := env.DbMap.Dbx.MustExec("delete from people where id = $1", id)
 
 	n, err := res.RowsAffected()
 	if err != nil {
