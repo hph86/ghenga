@@ -286,13 +286,19 @@ func (p Person) String() string {
 }
 
 // FindPerson returns the person struct with the given id.
-func FindPerson(db *modl.DbMap, id int64) (*Person, error) {
+func (db *DB) FindPerson(id int64) (*Person, error) {
 	var p Person
 
-	err := db.SelectOne(&p, "SELECT * FROM people WHERE id = $1", id)
+	err := db.dbmap.SelectOne(&p, "SELECT * FROM people WHERE id = $1", id)
 	if err != nil {
 		return nil, err
 	}
 
 	return &p, nil
+}
+
+// UpdatePerson modifies an existing person.
+func (db *DB) UpdatePerson(p *Person) error {
+	_, err := db.dbmap.Update(p)
+	return err
 }

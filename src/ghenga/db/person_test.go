@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-
-	"github.com/jmoiron/modl"
 )
 
 var update = flag.Bool("update", false, "update golden files")
@@ -88,8 +86,7 @@ func TestPersonInsertSelect(t *testing.T) {
 	}
 
 	for i, test := range testPersons {
-		var p Person
-		err := testDB.SelectOne(&p, "SELECT * FROM people WHERE id = $1", ids[i])
+		p, err := testDB.FindPerson(ids[i])
 		if err != nil {
 			t.Errorf("loading %v failed: %v", test.p.ID, err)
 			continue
@@ -119,14 +116,13 @@ func TestPersonInsertSelect(t *testing.T) {
 }
 
 func TestPersonVersion(t *testing.T) {
-	var p Person
-	err := testDB.SelectOne(&p, "SELECT * FROM people WHERE id = 14")
+	p, err := testDB.FindPerson(14)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	p.Version = 25
-	_, err = testDB.Update(&p)
+	err = testDB.UpdatePerson(p)
 	if err == nil {
 		t.Fatalf("expected error due to outdated version not found")
 	}
@@ -225,25 +221,25 @@ func TestPersonValidate(t *testing.T) {
 }
 
 func TestPersonUpdate(t *testing.T) {
-	p, err := FindPerson(testDB, 12)
+	p, err := testDB.FindPerson(12)
 	if err != nil {
 		t.Fatalf("unable to load person 12: %v", err)
 	}
 
 	p.Name = "foo bar"
-	if _, err = testDB.Update(p); err != nil {
+	if err = testDB.UpdatePerson(p); err != nil {
 		t.Fatalf("unable to update person: %v", err)
 	}
 
 	p.Title = "CTO"
 	p.Version = 1
-	if _, err = testDB.Update(p); err == nil {
+	if err = testDB.UpdatePerson(p); err == nil {
 		t.Fatalf("update did not fail despite wrong version field")
 	}
 }
 
-func findPerson(t *testing.T, db *modl.DbMap, id int64) *Person {
-	p, err := FindPerson(db, 14)
+func findPerson(t *testing.T, db *DB, id int64) *Person {
+	p, err := db.FindPerson(id)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -251,9 +247,8 @@ func findPerson(t *testing.T, db *modl.DbMap, id int64) *Person {
 	return p
 }
 
-func updatePerson(t *testing.T, db *modl.DbMap, p *Person) {
-	_, err := db.Update(p)
-	if err != nil {
+func updatePerson(t *testing.T, db *DB, p *Person) {
+	if err := db.UpdatePerson(p); err != nil {
 		t.Fatal(err)
 	}
 }

@@ -1,10 +1,6 @@
 package db
 
-import (
-	"testing"
-
-	"github.com/jmoiron/modl"
-)
+import "testing"
 
 var searchTestPersons = []Person{
 	Person{
@@ -31,8 +27,8 @@ var searchTestPersons = []Person{
 
 //  fuzzyFindPersons makes sure that at least people are contained within the
 //  result set.
-func fuzzyFindPersons(t *testing.T, db *modl.DbMap, query string, in []Person, out []Person) {
-	result, err := FuzzyFindPersons(db, query)
+func fuzzyFindPersons(t *testing.T, db *DB, query string, in []Person, out []Person) {
+	result, err := db.FuzzyFindPersons(query)
 	if err != nil {
 		t.Fatalf("FuzzyFindPersons(%q) returned error %v", query, err)
 	}

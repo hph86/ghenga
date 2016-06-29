@@ -188,12 +188,18 @@ func (u *User) Update(other UserJSON) {
 }
 
 // FindUser searches the database for a user based on their login name.
-func FindUser(db *modl.DbMap, login string) (*User, error) {
+func (db *DB) FindUser(login string) (*User, error) {
 	var u User
-	err := db.SelectOne(&u, "SELECT * FROM users WHERE login = $1", login)
+	err := db.dbmap.SelectOne(&u, "SELECT * FROM users WHERE login = $1", login)
 	if err != nil {
 		return nil, err
 	}
 
 	return &u, nil
+}
+
+// UpdateUser modifies an existing user.
+func (db *DB) UpdateUser(u *User) error {
+	_, err := db.dbmap.Update(u)
+	return err
 }

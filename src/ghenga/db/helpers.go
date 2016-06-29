@@ -71,14 +71,14 @@ func NewFakeUser(lang string) (*User, error) {
 // InsertFakeData will populate the db with fake (but realistic) data. Among
 // others, users named "admin" and "user" with the password "geheim" are
 // created.
-func InsertFakeData(dbm *modl.DbMap, people, user int) error {
+func InsertFakeData(db *DB, people, user int) error {
 	for i := 0; i < people; i++ {
 		p, err := NewFakePerson("de")
 		if err != nil {
 			return probe.Trace(err, people)
 		}
 
-		err = dbm.Insert(p)
+		err = db.Insert(p)
 		if err != nil {
 			return probe.Trace(err, user)
 		}
@@ -94,7 +94,7 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 		}
 
 		u.Admin = s.admin
-		if err := dbm.Insert(u); err != nil {
+		if err := db.Insert(u); err != nil {
 			return probe.Trace(err, u)
 		}
 	}
@@ -105,7 +105,7 @@ func InsertFakeData(dbm *modl.DbMap, people, user int) error {
 			return probe.Trace(err)
 		}
 
-		err = dbm.Insert(u)
+		err = db.Insert(u)
 		if err != nil {
 			// ignore errors for fake data
 			continue
@@ -148,23 +148,27 @@ func testCleanupDB(db *modl.DbMap) {
 // TestDB returns a database suitable for testing. The database is emptied
 // and filled with fake data. It should be called in TestMain. On error, TestDB
 // panics.
-func TestDB(people, user int) (*modl.DbMap, func()) {
-	dbmap, err := Init(TestDataSource())
+func TestDB(people, user int) (*DB, func()) {
+	db, err := Init(TestDataSource())
 	if err != nil {
 		panic(err)
 	}
 
-	testCleanupDB(dbmap)
+	testCleanupDB(db.dbmap)
 
-	err = InsertFakeData(dbmap, people, user)
+	if err = migrateDB(db.dbmap); err != nil {
+		panic(err)
+	}
+
+	err = InsertFakeData(db, people, user)
 	if err != nil {
 		panic(err)
 	}
 
-	return dbmap, func() {
-		testCleanupDB(dbmap)
+	return db, func() {
+		testCleanupDB(db.dbmap)
 
-		if err := dbmap.Db.Close(); err != nil {
+		if err := db.Close(); err != nil {
 			panic(err)
 		}
 	}

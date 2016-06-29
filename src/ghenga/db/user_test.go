@@ -18,7 +18,7 @@ func TestUserAdd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	u2, err := FindUser(testDB, "foo")
+	u2, err := testDB.FindUser("foo")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,14 +61,13 @@ var testUsers = []struct {
 }
 
 func TestUserVersion(t *testing.T) {
-	var u User
-	err := testDB.SelectOne(&u, "SELECT * FROM users WHERE id = 2")
+	u, err := testDB.FindUser("admin")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	u.Version = 25
-	_, err = testDB.Update(&u)
+	err = testDB.UpdateUser(u)
 	if err == nil {
 		t.Fatalf("expected error due to outdated version not found")
 	}
@@ -151,20 +150,20 @@ func TestUserValidate(t *testing.T) {
 }
 
 func TestUserUpdate(t *testing.T) {
-	u, err := FindUser(testDB, "user")
+	u, err := testDB.FindUser("user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}
 
 	u.Login = "foo bar"
-	if _, err = testDB.Update(u); err != nil {
+	if err = testDB.UpdateUser(u); err != nil {
 		t.Fatalf("unable to update user: %v", err)
 	}
 
 	v := u.Version
 	u.Admin = !u.Admin
 	u.Version = 1
-	if _, err = testDB.Update(u); err == nil {
+	if err = testDB.UpdateUser(u); err == nil {
 		t.Fatalf("update did not fail despite wrong version field")
 	}
 
@@ -172,13 +171,13 @@ func TestUserUpdate(t *testing.T) {
 	u.Login = "user"
 	u.Version = v
 
-	if _, err = testDB.Update(u); err != nil {
+	if err = testDB.UpdateUser(u); err != nil {
 		t.Fatalf("unable to update user: %v", err)
 	}
 }
 
 func TestUserUpdatePassword(t *testing.T) {
-	u, err := FindUser(testDB, "user")
+	u, err := testDB.FindUser("user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}
@@ -188,7 +187,7 @@ func TestUserUpdatePassword(t *testing.T) {
 	}
 
 	u.Password = "foobar2"
-	if _, err = testDB.Update(u); err != nil {
+	if err = testDB.UpdateUser(u); err != nil {
 		t.Errorf("unable to update user: %v", err)
 	}
 
@@ -200,7 +199,7 @@ func TestUserUpdatePassword(t *testing.T) {
 		t.Errorf("changed password for account `user` is not `foobar2`")
 	}
 
-	u2, err := FindUser(testDB, "user")
+	u2, err := testDB.FindUser("user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}

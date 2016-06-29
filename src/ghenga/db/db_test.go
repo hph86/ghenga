@@ -3,11 +3,9 @@ package db
 import (
 	"os"
 	"testing"
-
-	"github.com/jmoiron/modl"
 )
 
-var testDB *modl.DbMap
+var testDB *DB
 
 func TestMain(m *testing.M) {
 	var cleanup func()

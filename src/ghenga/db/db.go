@@ -43,6 +43,11 @@ func findMigrationsDir() (dir string, err error) {
 	return "", fmt.Errorf("directory %q not found", subdir)
 }
 
+// DB is a storage database for ghenga.
+type DB struct {
+	dbmap *modl.DbMap
+}
+
 // configDBMap creates a new mapping on the given database and creates the
 // tables (if necessary).
 func configDBMap(db *sql.DB) (*modl.DbMap, error) {
@@ -57,7 +62,7 @@ func configDBMap(db *sql.DB) (*modl.DbMap, error) {
 
 // Init opens the database. When the environment variable `DBTRACE` is set to
 // 1, all queries are written to stderr.
-func Init(dataSource string) (*modl.DbMap, error) {
+func Init(dataSource string) (*DB, error) {
 	db, err := sql.Open(dialect, dataSource)
 	if err != nil {
 		return nil, err
@@ -82,7 +87,7 @@ func Init(dataSource string) (*modl.DbMap, error) {
 		return nil, err
 	}
 
-	return dbmap, nil
+	return &DB{dbmap}, nil
 }
 
 // migrateDB applies migrations according to the files in the subdir
@@ -97,4 +102,14 @@ func migrateDB(db *modl.DbMap) error {
 
 	_, err = migrate.Exec(db.Db, dialect, src, migrate.Up)
 	return err
+}
+
+// Close closes the connection to the underlying database.
+func (db *DB) Close() error {
+	return db.dbmap.Db.Close()
+}
+
+// Insert adds a new record to the database.
+func (db *DB) Insert(record interface{}) error {
+	return db.dbmap.Insert(record)
 }

@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"time"
-
-	"github.com/jmoiron/modl"
 )
 
 // Session contains the authentication token of a logged-in user.
@@ -42,13 +40,13 @@ func NewSession(user string, valid time.Duration) (*Session, error) {
 }
 
 // SaveNewSession generates a new session for the user and saves it to the db.
-func SaveNewSession(db *modl.DbMap, user string, valid time.Duration) (*Session, error) {
+func (db *DB) SaveNewSession(user string, valid time.Duration) (*Session, error) {
 	s, err := NewSession(user, valid)
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.Insert(s)
+	err = db.dbmap.Insert(s)
 	if err != nil {
 		return nil, err
 	}
@@ -57,9 +55,9 @@ func SaveNewSession(db *modl.DbMap, user string, valid time.Duration) (*Session,
 }
 
 // FindSession searches the session with the given token in the database.
-func FindSession(db *modl.DbMap, token string) (*Session, error) {
+func (db *DB) FindSession(token string) (*Session, error) {
 	var s Session
-	err := db.SelectOne(&s, "SELECT * FROM sessions WHERE token = $1", token)
+	err := db.dbmap.SelectOne(&s, "SELECT * FROM sessions WHERE token = $1", token)
 	if err != nil {
 		return nil, err
 	}
@@ -68,14 +66,14 @@ func FindSession(db *modl.DbMap, token string) (*Session, error) {
 }
 
 // ExpireSessions removes expired sessions from the db.
-func ExpireSessions(db *modl.DbMap) (sessionsRemoved int64, err error) {
-	res := db.Dbx.MustExec("DELETE FROM sessions WHERE valid_until < now()")
+func (db *DB) ExpireSessions() (sessionsRemoved int64, err error) {
+	res := db.dbmap.Dbx.MustExec("DELETE FROM sessions WHERE valid_until < now()")
 	return res.RowsAffected()
 }
 
 // Invalidate removes the session from the database.
-func (s *Session) Invalidate(db *modl.DbMap) error {
-	_, err := db.Delete(s)
+func (db *DB) Invalidate(s *Session) error {
+	_, err := db.dbmap.Delete(s)
 	if err != nil {
 		return err
 	}
