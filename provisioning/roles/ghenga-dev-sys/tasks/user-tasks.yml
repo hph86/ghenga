@@ -1,7 +1,6 @@
 ---
 - file: "path=/home/{{ ansible_user_id }}/.local state=directory"
 - unarchive: "src={{ go_archive_url }} dest=/home/{{ ansible_user_id }}/.local copy=no"
-- copy: "src=/etc/skel/.profile dest=/home/{{ ansible_user_id }}/.profile owner={{ ansible_user_id }} remote_src=True"
 - lineinfile: "dest=/home/{{ ansible_user_id }}/.profile line={{ item }}"
   with_items:
     - "export GOROOT=$HOME/.local/go"
