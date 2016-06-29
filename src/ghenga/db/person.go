@@ -302,3 +302,15 @@ func (db *DB) UpdatePerson(p *Person) error {
 	_, err := db.dbmap.Update(p)
 	return err
 }
+
+// InsertPerson creates a new person.
+func (db *DB) InsertPerson(p *Person) error {
+	return db.dbmap.Insert(p)
+}
+
+// ListPeople returns the list of people.
+func (db *DB) ListPeople() ([]*Person, error) {
+	var people []*Person
+	err := db.dbmap.Select(&people, "select * from people")
+	return people, err
+}

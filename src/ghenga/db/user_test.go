@@ -13,7 +13,7 @@ func TestUserAdd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testDB.Insert(u)
+	err = testDB.InsertUser(u)
 	if err != nil {
 		t.Fatal(err)
 	}

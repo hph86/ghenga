@@ -203,3 +203,8 @@ func (db *DB) UpdateUser(u *User) error {
 	_, err := db.dbmap.Update(u)
 	return err
 }
+
+// InsertUser creates a new user.
+func (db *DB) InsertUser(u *User) error {
+	return db.dbmap.Insert(u)
+}

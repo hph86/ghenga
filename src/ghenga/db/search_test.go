@@ -95,7 +95,7 @@ var fuzzyFindTests = []struct {
 
 func TestFuzzyFindPersons(t *testing.T) {
 	for _, p := range searchTestPersons {
-		err := testDB.Insert(&p)
+		err := testDB.InsertPerson(&p)
 		if err != nil {
 			t.Fatalf("insert test persons returned error %v", err)
 		}

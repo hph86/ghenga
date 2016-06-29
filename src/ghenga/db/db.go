@@ -108,8 +108,3 @@ func migrateDB(db *modl.DbMap) error {
 func (db *DB) Close() error {
 	return db.dbmap.Db.Close()
 }
-
-// Insert adds a new record to the database.
-func (db *DB) Insert(record interface{}) error {
-	return db.dbmap.Insert(record)
-}

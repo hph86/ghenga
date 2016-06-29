@@ -76,7 +76,7 @@ var testPersons = []struct {
 func TestPersonInsertSelect(t *testing.T) {
 	var ids []int64
 	for _, test := range testPersons {
-		err := testDB.Insert(&test.p)
+		err := testDB.InsertPerson(&test.p)
 		if err != nil {
 			t.Errorf("saving %v failed: %v", test.name, err)
 			continue

@@ -78,7 +78,7 @@ func InsertFakeData(db *DB, people, user int) error {
 			return probe.Trace(err, people)
 		}
 
-		err = db.Insert(p)
+		err = db.InsertPerson(p)
 		if err != nil {
 			return probe.Trace(err, user)
 		}
@@ -94,7 +94,7 @@ func InsertFakeData(db *DB, people, user int) error {
 		}
 
 		u.Admin = s.admin
-		if err := db.Insert(u); err != nil {
+		if err := db.InsertUser(u); err != nil {
 			return probe.Trace(err, u)
 		}
 	}
@@ -105,7 +105,7 @@ func InsertFakeData(db *DB, people, user int) error {
 			return probe.Trace(err)
 		}
 
-		err = db.Insert(u)
+		err = db.InsertUser(u)
 		if err != nil {
 			// ignore errors for fake data
 			continue
