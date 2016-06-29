@@ -8,7 +8,7 @@ import (
 )
 
 type globalOptions struct {
-	DB    string `short:"d" long:"database" default:"" env:"GHENGA_DB"   description:"Connection string for postgresql database"`
+	DB    string `short:"d" long:"database" default:"" env:"GHENGA_DB"   description:"Connection string for postgresql database" default:"host=/var/run/postgresql"`
 	Debug bool   `short:"D" long:"debug"                            env:"GHENGA_DEBUG" description:"Enable debug messages for development"`
 }
 
