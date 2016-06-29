@@ -20,6 +20,11 @@ func OpenDB() (dbm *modl.DbMap, cleanup func() error, err error) {
 		return nil, nil, err
 	}
 
+	err = db.Migrate(dbm)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	cleanup = func() error { return dbm.Db.Close() }
 	return dbm, cleanup, nil
 }
