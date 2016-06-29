@@ -1,0 +1,53 @@
+---
+go_archive_url: https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
+node_pkg_mirror: https://deb.nodesource.com/node_4.x
+node_pkg_key: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+dependencies:
+  - curl
+  - wget
+  - git
+  - vim
+  - tmux
+  - screen
+  - zsh
+  - sqlite3
+  - nodejs
+  - postgresql
+  - libpq-dev
+  - python-psycopg2
+npm_dependencies:
+  - bower
+  - grunt-cli
+go_dependencies:
+  - github.com/rubenv/modl-migrate/...
+  - github.com/constabulary/gb/...
+  - github.com/derekparker/delve/cmd/dlv
+
+db_name: vagrant
+db_user: vagrant
+db_password: vagrant
+
+default_locales:
+  LC_COLLATE: "en_US.UTF-8"
+  LC_CTYPE: "en_US.UTF-8"
+  LC_PAPER: "en_US.UTF-8"
+  LC_ADDRESS: "en_US.UTF-8"
+  LC_NAME: "en_US.UTF-8"
+  LC_MEASUREMENT: "en_US.UTF-8"
+  LC_IDENTIFICATION: "en_US.UTF-8"
+  LC_TELEPHONE: "en_US.UTF-8"
+  LC_MONETARY: "en_US.UTF-8"
+  LC_MESSAGES: "en_US.UTF-8"
+  LC_NUMERIC: "en_US.UTF-8"
+  LC_TIME: "en_US.UTF-8"
+  LANGUAGE: "en_US.UTF-8"
+  LANG: "en_US.UTF-8"
+  LC_ALL: "en_US.UTF-8"
+default_system_env:
+  - LC_ALL=en_US.UTF-8
+  - LANG=en_US.UTF-8
+generate_locales:
+  - en_US.UTF-8
+  - en_GB.UTF-8
+  - de_DE.UTF-8

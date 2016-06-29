@@ -1,0 +1,7 @@
+---
+- include: root-tasks.yml
+  become: True
+- include: database.yml
+  become: True
+  become_user: postgres
+- include: user-tasks.yml
