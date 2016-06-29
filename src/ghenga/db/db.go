@@ -78,12 +78,16 @@ func Init(dataSource string) (*modl.DbMap, error) {
 		dbmap.TraceOn("DB: ", l)
 	}
 
+	if err = migrateDB(dbmap); err != nil {
+		return nil, err
+	}
+
 	return dbmap, nil
 }
 
-// Migrate applies migrations according to the files in the subdir
+// migrateDB applies migrations according to the files in the subdir
 // "migrations/".
-func Migrate(db *modl.DbMap) error {
+func migrateDB(db *modl.DbMap) error {
 	dir, err := findMigrationsDir()
 	if err != nil {
 		return err

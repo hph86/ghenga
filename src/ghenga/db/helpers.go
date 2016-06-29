@@ -156,10 +156,6 @@ func TestDB(people, user int) (*modl.DbMap, func()) {
 
 	testCleanupDB(dbmap)
 
-	if err := Migrate(dbmap); err != nil {
-		panic(err)
-	}
-
 	err = InsertFakeData(dbmap, people, user)
 	if err != nil {
 		panic(err)
