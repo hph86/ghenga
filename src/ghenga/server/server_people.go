@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"ghenga/db"
 	"net/http"
 	"strconv"
@@ -36,7 +35,7 @@ func ShowPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *htt
 	err = env.DbMap.SelectOne(&person, "select * from people where id = $1", id)
 	if err != nil {
 		return StatusError{
-			Err:  fmt.Errorf("person not found: %v", err),
+			Err:  errors.New("person not found"),
 			Code: http.StatusNotFound,
 		}
 	}
