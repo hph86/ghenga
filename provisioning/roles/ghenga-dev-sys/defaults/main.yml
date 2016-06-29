@@ -1,7 +1,7 @@
 ---
-go_archive_url: https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
-node_pkg_mirror: https://deb.nodesource.com/node_4.x
+node_pkg_mirror: https://deb.nodesource.com/node_4.x wily main
 node_pkg_key: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+go_archive_url: https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
 
 dependencies:
   - curl
