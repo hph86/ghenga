@@ -25,47 +25,9 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 8080, host: forwarded_port.to_i
   config.vm.synced_folder ".", "/home/vagrant/ghenga"
 
-  config.vm.provision "shell", inline: <<-SHELL
-       curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
-       echo 'deb https://deb.nodesource.com/node_4.x wily main' > /etc/apt/sources.list.d/nodesource.list
-       echo 'deb-src https://deb.nodesource.com/node_4.x wily main' >> /etc/apt/sources.list.d/nodesource.list
-
-       export DEBIAN_FRONTEND=noninteractive
-       apt-get update
-       apt-get -y dist-upgrade
-
-       apt-get install -y \
-          -o Dpkg::Options::="--force-confdef" \
-          -o Dpkg::Options::="--force-confnew" \
-          curl wget git vim tmux screen zsh moreutils silversearcher-ag nodejs postgresql
-
-       locale-gen -a de_DE.UTF-8 en_US.UTF-8 en_GB.UTF-8
-       grep -q LC_ALL /etc/environment || echo -en 'LC_ALL=en_US.UTF-8\nLANG=en_US.UTF-8\n' >> /etc/environment
-
-       # create database 'vagrant'
-       echo "create user vagrant with encrypted password 'vagrant';" | sudo -u postgres psql
-       echo "create database vagrant with owner vagrant" | sudo -u postgres psql
-       echo "create database test with owner vagrant" | sudo -u postgres psql
-  SHELL
-
-  config.vm.provision "shell", :privileged => false, inline: <<-SHELL
-       wget -q -O /tmp/go.tar.gz https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
-       mkdir -p .local
-       cd .local/
-       tar xzf /tmp/go.tar.gz
-
-       cat /etc/skel/.profile > ~/.profile
-       echo 'export GOROOT=$HOME/.local/go' >> ~/.profile
-       echo 'export GOPATH=$HOME/go' >> ~/.profile
-       echo 'export GOBIN=$HOME/bin' >> ~/.profile
-       echo 'export PATH=$PATH:$GOROOT/bin:$GOBIN' >> ~/.profile
-
-       source ~/.profile
-
-       go get github.com/rubenv/modl-migrate/...
-       go get github.com/constabulary/gb/...
-       go get github.com/derekparker/delve/cmd/dlv
-  SHELL
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "provisioning/playbook.yml"
+  end
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs

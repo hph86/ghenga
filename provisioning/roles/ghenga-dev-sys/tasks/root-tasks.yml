@@ -1,0 +1,20 @@
+---
+- apt_key: "url={{ node_pkg_key }} state=present"
+- apt_repository: "repo='{{ item }} {{ node_pkg_mirror }} wily main' state=present"
+  with_items:
+    - deb
+    - deb-src
+- action: "{{ ansible_pkg_mgr }} upgrade=dist update_cache=yes"
+  when: ansible_os_family == "Debian"
+- action: "{{ ansible_pkg_mgr }} name={{ item }} state=latest dpkg_options='force-confdef,force-confnew'"
+  # Override locale settings for postgresql post-install script to work correctly
+  # see: https://github.com/ansible/ansible/issues/10698
+  environment: "{{ default_locales }}"
+  with_items: "{{ dependencies }}"
+  when: ansible_os_family == "Debian"
+- locale_gen: "name={{ item }} state=present"
+  with_items: "{{ generate_locales }}"
+- lineinfile: "dest=/etc/environment line={{ item }}"
+  with_items: "{{ default_system_env }}"
+- npm: "name={{ item }} global=yes"
+  with_items: "{{ npm_dependencies }}"
