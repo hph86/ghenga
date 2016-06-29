@@ -8,20 +8,17 @@ import (
 )
 
 func TestUserAdd(t *testing.T) {
-	db, cleanup := TestDB(t)
-	defer cleanup()
-
 	u, err := NewUser("foo", "bar")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = db.Insert(u)
+	err = testDB.Insert(u)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	u2, err := FindUser(db, "foo")
+	u2, err := FindUser(testDB, "foo")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,17 +61,14 @@ var testUsers = []struct {
 }
 
 func TestUserVersion(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
 	var u User
-	err := db.SelectOne(&u, "SELECT * FROM users WHERE id = 2")
+	err := testDB.SelectOne(&u, "SELECT * FROM users WHERE id = 2")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	u.Version = 25
-	_, err = db.Update(&u)
+	_, err = testDB.Update(&u)
 	if err == nil {
 		t.Fatalf("expected error due to outdated version not found")
 	}
@@ -157,31 +151,34 @@ func TestUserValidate(t *testing.T) {
 }
 
 func TestUserUpdate(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
-	u, err := FindUser(db, "user")
+	u, err := FindUser(testDB, "user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}
 
 	u.Login = "foo bar"
-	if _, err = db.Update(u); err != nil {
+	if _, err = testDB.Update(u); err != nil {
 		t.Fatalf("unable to update user: %v", err)
 	}
 
+	v := u.Version
 	u.Admin = !u.Admin
 	u.Version = 1
-	if _, err = db.Update(u); err == nil {
+	if _, err = testDB.Update(u); err == nil {
 		t.Fatalf("update did not fail despite wrong version field")
+	}
+
+	u.Admin = !u.Admin
+	u.Login = "user"
+	u.Version = v
+
+	if _, err = testDB.Update(u); err != nil {
+		t.Fatalf("unable to update user: %v", err)
 	}
 }
 
 func TestUserUpdatePassword(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
-	u, err := FindUser(db, "user")
+	u, err := FindUser(testDB, "user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}
@@ -191,7 +188,7 @@ func TestUserUpdatePassword(t *testing.T) {
 	}
 
 	u.Password = "foobar2"
-	if _, err = db.Update(u); err != nil {
+	if _, err = testDB.Update(u); err != nil {
 		t.Errorf("unable to update user: %v", err)
 	}
 
@@ -203,7 +200,7 @@ func TestUserUpdatePassword(t *testing.T) {
 		t.Errorf("changed password for account `user` is not `foobar2`")
 	}
 
-	u2, err := FindUser(db, "user")
+	u2, err := FindUser(testDB, "user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}

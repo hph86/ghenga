@@ -21,18 +21,15 @@ func TestSession(t *testing.T) {
 }
 
 func TestSessionSave(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 10, 10)
-	defer cleanup()
-
 	var tokens []string
 
 	for i := 0; i < 10; i++ {
-		session, err := SaveNewSession(db, "user", time.Duration(10*(i-1))*time.Second)
+		session, err := SaveNewSession(testDB, "user", time.Duration(10*(i-1))*time.Second)
 		if err != nil {
 			t.Fatalf("NewSession() error %v", err)
 		}
 
-		s, err := FindSession(db, session.Token)
+		s, err := FindSession(testDB, session.Token)
 		if err != nil {
 			t.Fatalf("unable to find newly generated token in the session database: %v", err)
 		}
@@ -44,7 +41,7 @@ func TestSessionSave(t *testing.T) {
 		tokens = append(tokens, s.Token)
 	}
 
-	n, err := ExpireSessions(db)
+	n, err := ExpireSessions(testDB)
 	if err != nil {
 		t.Fatalf("error expire sessions: %v", err)
 	}
@@ -53,7 +50,7 @@ func TestSessionSave(t *testing.T) {
 		t.Errorf("expected 2 expired sessions, got %v", n)
 	}
 
-	if _, err = FindSession(db, tokens[0]); err == nil {
+	if _, err = FindSession(testDB, tokens[0]); err == nil {
 		t.Fatalf("expired session token %v still found in database", tokens[0])
 	}
 }

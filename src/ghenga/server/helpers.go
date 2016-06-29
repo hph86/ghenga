@@ -27,7 +27,7 @@ const (
 // TestEnv returns a test environment running on an in-memory database filled
 // with test data.
 func TestEnv(t *testing.T) (env *Env, cleanup func()) {
-	db, dbcleanup := db.TestDBFilled(t, fakePersonProfiles, fakeUserProfiles)
+	db, dbcleanup := db.TestDB(fakePersonProfiles, fakeUserProfiles)
 
 	env = &Env{
 		DbMap: db,

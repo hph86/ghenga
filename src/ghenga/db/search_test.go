@@ -98,17 +98,14 @@ var fuzzyFindTests = []struct {
 }
 
 func TestFuzzyFindPersons(t *testing.T) {
-	db, cleanup := TestDB(t)
-	defer cleanup()
-
 	for _, p := range searchTestPersons {
-		err := db.Insert(&p)
+		err := testDB.Insert(&p)
 		if err != nil {
 			t.Fatalf("insert test persons returned error %v", err)
 		}
 	}
 
 	for _, test := range fuzzyFindTests {
-		fuzzyFindPersons(t, db, test.query, test.in, test.out)
+		fuzzyFindPersons(t, testDB, test.query, test.in, test.out)
 	}
 }

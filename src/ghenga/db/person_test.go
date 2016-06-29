@@ -76,12 +76,9 @@ var testPersons = []struct {
 }
 
 func TestPersonInsertSelect(t *testing.T) {
-	db, cleanup := TestDB(t)
-	defer cleanup()
-
 	var ids []int64
 	for _, test := range testPersons {
-		err := db.Insert(&test.p)
+		err := testDB.Insert(&test.p)
 		if err != nil {
 			t.Errorf("saving %v failed: %v", test.name, err)
 			continue
@@ -92,7 +89,7 @@ func TestPersonInsertSelect(t *testing.T) {
 
 	for i, test := range testPersons {
 		var p Person
-		err := db.SelectOne(&p, "SELECT * FROM people WHERE id = $1", ids[i])
+		err := testDB.SelectOne(&p, "SELECT * FROM people WHERE id = $1", ids[i])
 		if err != nil {
 			t.Errorf("loading %v failed: %v", test.p.ID, err)
 			continue
@@ -122,17 +119,14 @@ func TestPersonInsertSelect(t *testing.T) {
 }
 
 func TestPersonVersion(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
 	var p Person
-	err := db.SelectOne(&p, "SELECT * FROM people WHERE id = 14")
+	err := testDB.SelectOne(&p, "SELECT * FROM people WHERE id = 14")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	p.Version = 25
-	_, err = db.Update(&p)
+	_, err = testDB.Update(&p)
 	if err == nil {
 		t.Fatalf("expected error due to outdated version not found")
 	}
@@ -231,22 +225,19 @@ func TestPersonValidate(t *testing.T) {
 }
 
 func TestPersonUpdate(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
-	p, err := FindPerson(db, 12)
+	p, err := FindPerson(testDB, 12)
 	if err != nil {
 		t.Fatalf("unable to load person 12: %v", err)
 	}
 
 	p.Name = "foo bar"
-	if _, err = db.Update(p); err != nil {
+	if _, err = testDB.Update(p); err != nil {
 		t.Fatalf("unable to update person: %v", err)
 	}
 
 	p.Title = "CTO"
 	p.Version = 1
-	if _, err = db.Update(p); err == nil {
+	if _, err = testDB.Update(p); err == nil {
 		t.Fatalf("update did not fail despite wrong version field")
 	}
 }
@@ -268,62 +259,50 @@ func updatePerson(t *testing.T, db *modl.DbMap, p *Person) {
 }
 
 func TestPersonUpdatePhoneNumbers(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
-	p := findPerson(t, db, 14)
+	p := findPerson(t, testDB, 14)
 	p.PhoneNumbers = append(p.PhoneNumbers, PhoneNumber{Type: "test", Number: "12345"})
 
-	updatePerson(t, db, p)
+	updatePerson(t, testDB, p)
 
-	p2 := findPerson(t, db, p.ID)
+	p2 := findPerson(t, testDB, p.ID)
 	if !p.PhoneNumbers.Equals(p2.PhoneNumbers) {
 		t.Fatalf("changing phone numbers did not work, want:\n%v\n  got:\n%v", p.PhoneNumbers, p2.PhoneNumbers)
 	}
 }
 
 func TestPersonDeletePhoneNumber(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
-	p := findPerson(t, db, 14)
+	p := findPerson(t, testDB, 14)
 	if len(p.PhoneNumbers) > 0 {
 		p.PhoneNumbers = p.PhoneNumbers[1:]
 	}
 
-	updatePerson(t, db, p)
+	updatePerson(t, testDB, p)
 
-	p2 := findPerson(t, db, p.ID)
+	p2 := findPerson(t, testDB, p.ID)
 	if !p.PhoneNumbers.Equals(p2.PhoneNumbers) {
 		t.Fatalf("changing phone numbers did not work, want:\n%v\n  got:\n%v", p.PhoneNumbers, p2.PhoneNumbers)
 	}
 }
 
 func TestPersonDeleteAllPhoneNumbers(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
-	p := findPerson(t, db, 14)
+	p := findPerson(t, testDB, 14)
 	p.PhoneNumbers = PhoneNumbers{}
 
-	updatePerson(t, db, p)
+	updatePerson(t, testDB, p)
 
-	p2 := findPerson(t, db, p.ID)
+	p2 := findPerson(t, testDB, p.ID)
 	if len(p2.PhoneNumbers) > 0 {
 		t.Fatalf("removing phone numbers did not work, got:\n%v", p2.PhoneNumbers)
 	}
 }
 
 func TestPersonReplacePhoneNumbers(t *testing.T) {
-	db, cleanup := TestDBFilled(t, 20, 3)
-	defer cleanup()
-
-	p := findPerson(t, db, 14)
+	p := findPerson(t, testDB, 14)
 	p.PhoneNumbers = PhoneNumbers{PhoneNumber{Type: "test", Number: "12345"}}
 
-	updatePerson(t, db, p)
+	updatePerson(t, testDB, p)
 
-	p2 := findPerson(t, db, p.ID)
+	p2 := findPerson(t, testDB, p.ID)
 	if !p.PhoneNumbers.Equals(p2.PhoneNumbers) {
 		t.Fatalf("changing phone numbers did not work, want:\n%v\n  got:\n%v", p.PhoneNumbers, p2.PhoneNumbers)
 	}

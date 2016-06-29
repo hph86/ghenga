@@ -42,8 +42,10 @@ create table users (
 
 create table sessions (
     token text not null primary key,
-    "user" text not null references users(login),
-    valid_until timestamp without time zone not null
+    "user" text not null,
+    valid_until timestamp without time zone not null,
+
+    foreign key ("user") references users(login) on update cascade on delete cascade
 );
 
 

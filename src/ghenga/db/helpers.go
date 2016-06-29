@@ -3,7 +3,6 @@ package db
 import (
 	"math/rand"
 	"os"
-	"testing"
 
 	"github.com/fd0/probe"
 	"github.com/jmoiron/modl"
@@ -121,7 +120,7 @@ const defaultDataSource = "host=/var/run/postgresql"
 // TestDataSource returns a datasource used for testing. This defaults to the
 // postgresql running on the default unix domain socket. If the environment
 // variable GHENGA_TEST_DB is set, this value is returned instead.
-func TestDataSource(t *testing.T) string {
+func TestDataSource() string {
 	dataSource := os.Getenv("GHENGA_TEST_DB")
 	if dataSource == "" {
 		dataSource = defaultDataSource
@@ -130,52 +129,47 @@ func TestDataSource(t *testing.T) string {
 	return dataSource
 }
 
-// TestCleanupDB removes everything in the database.
-func TestCleanupDB(t *testing.T, db *modl.DbMap) {
+// testCleanupDB removes everything in the database. On error it panics.
+func testCleanupDB(db *modl.DbMap) {
 	var queries []string
 	err := db.Select(&queries, `SELECT 'DROP TABLE "' || tablename || '" CASCADE;' FROM pg_tables WHERE schemaname='public'`)
 	if err != nil {
-		t.Fatalf("unable to clean database: %v", err)
+		panic(err)
 	}
 
 	for _, query := range queries {
 		_, err = db.Exec(query)
 		if err != nil {
-			t.Errorf("unable to execute querie %q: %v", query, err)
+			panic(err)
 		}
 	}
 }
 
-// TestDB returns an database suitable for testing. The database is emptied
-// before TestDB returns.
-func TestDB(t *testing.T) (*modl.DbMap, func()) {
-	dbmap, err := Init(TestDataSource(t))
+// TestDB returns a database suitable for testing. The database is emptied
+// and filled with fake data. It should be called in TestMain. On error, TestDB
+// panics.
+func TestDB(people, user int) (*modl.DbMap, func()) {
+	dbmap, err := Init(TestDataSource())
 	if err != nil {
-		t.Fatalf("unable to initialize db: %v", err)
+		panic(err)
 	}
 
-	TestCleanupDB(t, dbmap)
+	testCleanupDB(dbmap)
 
 	if err := Migrate(dbmap); err != nil {
-		t.Fatalf("migration failed: %v", err)
+		panic(err)
+	}
+
+	err = InsertFakeData(dbmap, people, user)
+	if err != nil {
+		panic(err)
 	}
 
 	return dbmap, func() {
-		err := dbmap.Db.Close()
-		if err != nil {
-			t.Fatalf("db.Close(): %v", err)
+		testCleanupDB(dbmap)
+
+		if err := dbmap.Db.Close(); err != nil {
+			panic(err)
 		}
 	}
-}
-
-// TestDBFilled returns an in-memory database filled with fake data.
-func TestDBFilled(t *testing.T, people, user int) (*modl.DbMap, func()) {
-	db, cleanup := TestDB(t)
-
-	err := InsertFakeData(db, people, user)
-	if err != nil {
-		t.Fatalf("TestDBFilled(): %v", err)
-	}
-
-	return db, cleanup
 }
