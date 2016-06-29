@@ -187,8 +187,8 @@ func (u *User) Update(other UserJSON) {
 	}
 }
 
-// FindUser searches the database for a user based on their login name.
-func (db *DB) FindUser(login string) (*User, error) {
+// FindUserName searches the database for a user based on their login name.
+func (db *DB) FindUserName(login string) (*User, error) {
 	var u User
 	err := db.dbmap.SelectOne(&u, "SELECT * FROM users WHERE login = $1", login)
 	if err != nil {
@@ -196,6 +196,24 @@ func (db *DB) FindUser(login string) (*User, error) {
 	}
 
 	return &u, nil
+}
+
+// FindUser searches the database for a user based on their id.
+func (db *DB) FindUser(id int64) (*User, error) {
+	var u User
+	err := db.dbmap.SelectOne(&u, "SELECT * FROM users WHERE id = $1", id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}
+
+// ListUsers returns the list of User.
+func (db *DB) ListUsers() ([]*User, error) {
+	var user []*User
+	err := db.dbmap.Select(&user, "select * from users")
+	return user, err
 }
 
 // UpdateUser modifies an existing user.
@@ -207,4 +225,19 @@ func (db *DB) UpdateUser(u *User) error {
 // InsertUser creates a new user.
 func (db *DB) InsertUser(u *User) error {
 	return db.dbmap.Insert(u)
+}
+
+// DeleteUser removes a user.
+func (db *DB) DeleteUser(id int64) error {
+	res := db.dbmap.Dbx.MustExec("delete from people where id = $1", id)
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if n != 1 {
+		return errors.New("user not found")
+	}
+
+	return nil
 }

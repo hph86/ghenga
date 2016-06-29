@@ -4,7 +4,6 @@ import (
 	"ghenga/db"
 
 	"github.com/jessevdk/go-flags"
-	"github.com/jmoiron/modl"
 )
 
 type globalOptions struct {
@@ -14,14 +13,8 @@ type globalOptions struct {
 
 // OpenDB opens the database, which is initialized if necessary. Before exit,
 // cleanup() should be called to properly close the database connection.
-func OpenDB() (dbm *modl.DbMap, cleanup func() error, err error) {
-	dbm, err = db.Init(globalOpts.DB)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	cleanup = func() error { return dbm.Db.Close() }
-	return dbm, cleanup, nil
+func OpenDB() (*db.DB, error) {
+	return db.Init(globalOpts.DB)
 }
 
 var globalOpts = globalOptions{}

@@ -14,8 +14,7 @@ import (
 
 // ListUsers handles listing users.
 func ListUsers(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
-	var users []*db.User
-	err := env.DbMap.Select(&users, "select * from users")
+	users, err := env.DB.ListUsers()
 	if err != nil {
 		return err
 	}
@@ -30,8 +29,7 @@ func ShowUser(ctx context.Context, env *Env, res http.ResponseWriter, req *http.
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	var user db.User
-	err = env.DbMap.SelectOne(&user, "select * from users where id = $1", id)
+	u, err := env.DB.FindUser(int64(id))
 	if err != nil {
 		return StatusError{
 			Err:  errors.New("user not found"),
@@ -39,7 +37,7 @@ func ShowUser(ctx context.Context, env *Env, res http.ResponseWriter, req *http.
 		}
 	}
 
-	return httpWriteJSON(res, http.StatusOK, user)
+	return httpWriteJSON(res, http.StatusOK, u)
 }
 
 // CreateUser inserts a new person into the database. The request body must be valid JSON.
@@ -63,7 +61,7 @@ func CreateUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	err = env.DbMap.Insert(&u)
+	err = env.DB.InsertUser(&u)
 	if err != nil {
 		return err
 	}
@@ -88,9 +86,9 @@ func UpdateUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 		return err
 	}
 
-	var u db.User
-	if err = env.DbMap.SelectOne(&u, "select id,created_at,version from users where id = $1", id); err != nil {
-		env.Logf("unable to find person ID %v, sql error: %v", id, err)
+	u, err := env.DB.FindUser(int64(id))
+	if err != nil {
+		env.Logf("unable to find person ID %v, error: %v", id, err)
 		return err
 	}
 
@@ -111,9 +109,8 @@ func UpdateUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	_, err = env.DbMap.Update(&u)
-	if err != nil {
-		env.Logf("unable update person %v, sql error: %v", u, err)
+	if err := env.DB.UpdateUser(u); err != nil {
+		env.Logf("unable update person %v, error: %v", u, err)
 		return err
 	}
 
@@ -127,18 +124,8 @@ func DeleteUser(ctx context.Context, env *Env, wr http.ResponseWriter, req *http
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	res := env.DbMap.Dbx.MustExec("delete from users where id = $1", id)
-
-	n, err := res.RowsAffected()
-	if err != nil {
+	if err := env.DB.DeleteUser(int64(id)); err != nil {
 		return err
-	}
-
-	if n != 1 {
-		return StatusError{
-			Err:  errors.New("person not found"),
-			Code: http.StatusNotFound,
-		}
 	}
 
 	return httpWriteJSON(wr, http.StatusOK, nil)

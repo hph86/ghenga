@@ -1,11 +1,11 @@
 package server
 
-import "github.com/jmoiron/modl"
+import "ghenga/db"
 
 // Env is an environment for a handler function.
 type Env struct {
-	DbMap *modl.DbMap
-	Cfg   Config
+	DB  *db.DB
+	Cfg Config
 
 	Logger struct {
 		Debug Logger

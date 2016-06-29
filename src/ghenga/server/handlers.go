@@ -82,7 +82,7 @@ func RequireAdmin(h HandleFunc) HandleFunc {
 			return err
 		}
 
-		u, err := db.FindUser(env.DbMap, session.User)
+		u, err := env.DB.FindUserName(session.User)
 		if err != nil {
 			return err
 		}

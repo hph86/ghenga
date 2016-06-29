@@ -21,11 +21,13 @@ func init() {
 }
 
 func (opts *cmdFakedata) Execute(args []string) (err error) {
-	dbm, cleanup, e := OpenDB()
+	dbm, e := OpenDB()
 	if e != nil {
 		return e
 	}
-	defer CleanupErr(&err, cleanup)
+	defer CleanupErr(&err, func() error {
+		return dbm.Close()
+	})
 
 	log.Printf("inserting fake data into the db...")
 

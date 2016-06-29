@@ -1,7 +1,6 @@
 package server
 
 import (
-	"ghenga/db"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -14,7 +13,7 @@ func SearchPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *h
 
 	env.Debugf("listing people that match %v", query)
 
-	people, err := db.FuzzyFindPersons(env.DbMap, query)
+	people, err := env.DB.FuzzyFindPersons(query)
 	if err != nil {
 		return err
 	}

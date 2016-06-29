@@ -31,7 +31,7 @@ func Login(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Req
 
 	env.Debugf("login attempt for user %v", username)
 
-	u, err := db.FindUser(env.DbMap, username)
+	u, err := env.DB.FindUserName(username)
 	if err != nil {
 		env.Debugf("error finding user %q in database: %v", username, err)
 	}
@@ -43,7 +43,7 @@ func Login(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Req
 		}
 	}
 
-	session, err := db.SaveNewSession(env.DbMap, username, env.Cfg.SessionDuration)
+	session, err := env.DB.SaveNewSession(username, env.Cfg.SessionDuration)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func findSession(env *Env, req *http.Request) (*db.Session, error) {
 		}
 	}
 
-	session, err := db.FindSession(env.DbMap, token)
+	session, err := env.DB.FindSession(token)
 	if err != nil {
 		env.Logf("error finding session with token %q in database: %v", token, err)
 	}
@@ -91,7 +91,7 @@ func Info(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Requ
 		return err
 	}
 
-	u, err := db.FindUser(env.DbMap, session.User)
+	u, err := env.DB.FindUserName(session.User)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func Invalidate(ctx context.Context, env *Env, res http.ResponseWriter, req *htt
 		return err
 	}
 
-	return session.Invalidate(env.DbMap)
+	return env.DB.Invalidate(session)
 }
 
 // LoginHandler adds routes to the for ghenga API in the given enviroment to r.

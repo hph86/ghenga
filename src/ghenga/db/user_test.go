@@ -18,7 +18,7 @@ func TestUserAdd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	u2, err := testDB.FindUser("foo")
+	u2, err := testDB.FindUserName("foo")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ var testUsers = []struct {
 }
 
 func TestUserVersion(t *testing.T) {
-	u, err := testDB.FindUser("admin")
+	u, err := testDB.FindUserName("admin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -150,7 +150,7 @@ func TestUserValidate(t *testing.T) {
 }
 
 func TestUserUpdate(t *testing.T) {
-	u, err := testDB.FindUser("user")
+	u, err := testDB.FindUserName("user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}
@@ -177,7 +177,7 @@ func TestUserUpdate(t *testing.T) {
 }
 
 func TestUserUpdatePassword(t *testing.T) {
-	u, err := testDB.FindUser("user")
+	u, err := testDB.FindUserName("user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}
@@ -199,7 +199,7 @@ func TestUserUpdatePassword(t *testing.T) {
 		t.Errorf("changed password for account `user` is not `foobar2`")
 	}
 
-	u2, err := testDB.FindUser("user")
+	u2, err := testDB.FindUserName("user")
 	if err != nil {
 		t.Fatalf("unable to load user %q: %v", "user", err)
 	}

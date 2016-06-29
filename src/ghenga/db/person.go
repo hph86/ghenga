@@ -314,3 +314,18 @@ func (db *DB) ListPeople() ([]*Person, error) {
 	err := db.dbmap.Select(&people, "select * from people")
 	return people, err
 }
+
+// DeletePerson removes a person.
+func (db *DB) DeletePerson(id int64) error {
+	res := db.dbmap.Dbx.MustExec("delete from people where id = $1", id)
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if n != 1 {
+		return errors.New("person not found")
+	}
+
+	return nil
+}

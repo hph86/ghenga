@@ -15,8 +15,7 @@ import (
 
 // ListPeople handles listing person records.
 func ListPeople(ctx context.Context, env *Env, res http.ResponseWriter, req *http.Request) error {
-	var people []*db.Person
-	err := env.DbMap.Select(&people, "select * from people")
+	people, err := env.DB.ListPeople()
 	if err != nil {
 		return err
 	}
@@ -31,8 +30,7 @@ func ShowPerson(ctx context.Context, env *Env, res http.ResponseWriter, req *htt
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	var person db.Person
-	err = env.DbMap.SelectOne(&person, "select * from people where id = $1", id)
+	person, err := env.DB.FindPerson(int64(id))
 	if err != nil {
 		return StatusError{
 			Err:  errors.New("person not found"),
@@ -64,7 +62,7 @@ func CreatePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *ht
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	err = env.DbMap.Insert(&p)
+	err = env.DB.InsertPerson(&p)
 	if err != nil {
 		return err
 	}
@@ -89,9 +87,9 @@ func UpdatePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *ht
 		return err
 	}
 
-	var p db.Person
-	if err = env.DbMap.SelectOne(&p, "select id,created_at,version from people where id = $1", id); err != nil {
-		env.Logf("unable to find person ID %v, sql error: %v", id, err)
+	p, err := env.DB.FindPerson(int64(id))
+	if err != nil {
+		env.Logf("unable to find person ID %v, error: %v", id, err)
 		return err
 	}
 
@@ -113,7 +111,7 @@ func UpdatePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *ht
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	_, err = env.DbMap.Update(&p)
+	err = env.DB.UpdatePerson(p)
 	if err != nil {
 		env.Logf("unable update person %v, sql error: %v", p, err)
 		return err
@@ -129,18 +127,8 @@ func DeletePerson(ctx context.Context, env *Env, wr http.ResponseWriter, req *ht
 		return StatusError{Code: http.StatusBadRequest, Err: err}
 	}
 
-	res := env.DbMap.Dbx.MustExec("delete from people where id = $1", id)
-
-	n, err := res.RowsAffected()
-	if err != nil {
+	if err := env.DB.DeletePerson(int64(id)); err != nil {
 		return err
-	}
-
-	if n != 1 {
-		return StatusError{
-			Err:  errors.New("person not found"),
-			Code: http.StatusNotFound,
-		}
 	}
 
 	return httpWriteJSON(wr, http.StatusOK, nil)

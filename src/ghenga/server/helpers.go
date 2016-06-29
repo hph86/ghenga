@@ -30,7 +30,7 @@ func TestEnv(t *testing.T) (env *Env, cleanup func()) {
 	db, dbcleanup := db.TestDB(fakePersonProfiles, fakeUserProfiles)
 
 	env = &Env{
-		DbMap: db,
+		DB: db,
 		Cfg: Config{
 			SessionDuration: 600 * time.Second,
 		},
