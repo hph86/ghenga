@@ -1,6 +1,5 @@
 language: go
-sudo: required
-dist: trusty
+sudo: false
 
 notifications:
   webhooks:
@@ -34,6 +33,6 @@ install:
 
 script:
   - gb build
-  - GHENGA_TEST_DB="host=localhost user=ghenga password=ghenga dbname=ghenga sslmode=disable" gb test
+  - GHENGA_TEST_DB="host=localhost user=ghenga password=ghenga dbname=ghenga sslmode=disable" gb test -v ghenga/db
   - diff <(GOPATH="$PWD:$PWD/vendor" goimports -d ./src) <(printf "")
   - diff <(golint ./src/...) <(printf "")
