@@ -1,6 +1,6 @@
 ---
 - apt_key: "url={{ node_pkg_key }} state=present"
-- apt_repository: "repo='{{ item }} {{ node_pkg_mirror }} wily main' state=present"
+- apt_repository: "repo='{{ item }} {{ node_pkg_mirror }}' state=present mode=644"
   with_items:
     - deb
     - deb-src
