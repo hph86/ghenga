@@ -23,10 +23,12 @@ Vagrant.configure(2) do |config|
 
   forwarded_port = ENV["GHENGA_PORT"] || 8080
   config.vm.network "forwarded_port", guest: 8080, host: forwarded_port.to_i
-  config.vm.synced_folder ".", "/home/vagrant/ghenga"
+  synced_folder = "/home/vagrant/ghenga"
+  config.vm.synced_folder ".", synced_folder
 
-  config.vm.provision :ansible do |ansible|
+  config.vm.provision :ansible_local do |ansible|
     ansible.playbook = "provisioning/playbook.yml"
+    ansible.provisioning_path = synced_folder
   end
 
   # Disable automatic box update checking. If you disable this, then
